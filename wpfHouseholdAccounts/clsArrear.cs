@@ -30,6 +30,50 @@ namespace wpfHouseholdAccounts
         /// <param name="argDbCon"></param>
         public void Adjustment(MoneyInputData myInData, DbConnection argDbCon)
         {
+            // 未払明細から未払明細履歴へデータを移す
+            DatabaseSwitchDetail2History(myInData.DebitCode, myInData.CreditCode, myInData.Date, argDbCon);
+
+            // 未払明細から削除
+            DatabaseDetailDelete(myInData.DebitCode, myInData.Date, argDbCon);
+        }
+
+        public void DatabaseSwitchDetail2History(string myArrearCode, string myPaymentCode, DateTime myAdjustmentDate, DbConnection argDbCon)
+        {
+            DbConnection myDbCon;
+            string SqlExecCommand = "";
+
+            // 引数にコネクションが指定されていた場合は指定されたコネクションを使用
+            if (argDbCon != null)
+                myDbCon = argDbCon;
+            else
+                myDbCon = new DbConnection();
+
+            SqlExecCommand = "INSERT INTO 未払明細履歴 ";
+            SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日 ) ";
+            SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード,'" + myPaymentCode + "', 金額,摘要,支払予定日 ";
+            SqlExecCommand = SqlExecCommand + "        FROM 未払明細 ";
+            SqlExecCommand = SqlExecCommand + "    WHERE 未払コード = '" + myArrearCode + "' AND 支払予定日 = '" + myAdjustmentDate.ToShortDateString() + "' ";
+
+            myDbCon.execSqlCommand(SqlExecCommand);
+        }
+
+        public void DatabaseDetailDelete(string myArrearCode, DateTime myPaymentScheduleDate, DbConnection argDbCon)
+        {
+            DbConnection myDbCon;
+            string mySqlCommand = "";
+
+            // 引数にコネクションが指定されていた場合は指定されたコネクションを使用
+            if (argDbCon != null)
+                myDbCon = argDbCon;
+            else
+                myDbCon = new DbConnection();
+
+            mySqlCommand = "DELETE FROM 未払明細 ";
+            mySqlCommand = mySqlCommand + "WHERE 未払コード = '" + myArrearCode + "' AND 支払予定日 = '" + myPaymentScheduleDate.ToShortDateString() + "' ";
+
+            myDbCon.execSqlCommand(mySqlCommand);
+
+            return;
         }
 
         public int GetMaxDataOrder(DbConnection myDbCon)
