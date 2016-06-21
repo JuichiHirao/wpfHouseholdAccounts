@@ -581,6 +581,16 @@ namespace wpfHouseholdAccounts
                             else
                                 IsMatch = false;
                         }
+
+                        if (dispinfoMakeupDetailFilterButton[4] && data.Kind == 4)
+                            IsMatch = true;
+                        else
+                            IsMatch = false;
+
+                        if (dispinfoMakeupDetailFilterButton[5] && data.Kind == 5)
+                            IsMatch = true;
+                        else if (data.Kind == 5)
+                            IsMatch = false;
                     }
                     //Debug.Print("IsMatch [" + IsMatch + "]  dispinfoMakeupDetailFilterButton[0] [" + dispinfoMakeupDetailFilterButton[0] + "]  data.Kind [" + data.Kind + "]");
 
@@ -2160,7 +2170,7 @@ namespace wpfHouseholdAccounts
 
             List<ToggleButton> listtbtn = CommonMethod.FindVisualChild<ToggleButton>(lstackSearchFilter, "ToggleButton");
 
-            dispinfoMakeupDetailFilterButton = new bool[5];
+            dispinfoMakeupDetailFilterButton = new bool[6];
 
             if (tbtnLabel.Equals("全て"))
             {
@@ -2169,6 +2179,7 @@ namespace wpfHouseholdAccounts
                 dispinfoMakeupDetailFilterButton[2] = true;
                 dispinfoMakeupDetailFilterButton[3] = true;
                 dispinfoMakeupDetailFilterButton[4] = true;
+                dispinfoMakeupDetailFilterButton[5] = true;
                 foreach (ToggleButton tbtn in listtbtn)
                 {
                     if (tbtn.Content.ToString().Equals("全て"))
@@ -2231,13 +2242,22 @@ namespace wpfHouseholdAccounts
                             dispinfoMakeupDetailFilterButton[4] = false;
                         continue;
                     }
+                    if (tbtn.Content.ToString().Equals("妻未払"))
+                    {
+                        if (tbtn.Content.ToString().Equals("妻未払") && chk)
+                            dispinfoMakeupDetailFilterButton[5] = true;
+                        else
+                            dispinfoMakeupDetailFilterButton[5] = false;
+                        continue;
+                    }
                 }
 
                 if (dispinfoMakeupDetailFilterButton[0] 
                     && dispinfoMakeupDetailFilterButton[1]
                     && dispinfoMakeupDetailFilterButton[2]
                     && dispinfoMakeupDetailFilterButton[3]
-                    && dispinfoMakeupDetailFilterButton[4])
+                    && dispinfoMakeupDetailFilterButton[4]
+                    && dispinfoMakeupDetailFilterButton[5])
                 {
                     foreach (ToggleButton tbtn in listtbtn)
                     {
@@ -2254,7 +2274,8 @@ namespace wpfHouseholdAccounts
                     && !dispinfoMakeupDetailFilterButton[1]
                     && !dispinfoMakeupDetailFilterButton[2]
                     && !dispinfoMakeupDetailFilterButton[3]
-                    && !dispinfoMakeupDetailFilterButton[4])
+                    && !dispinfoMakeupDetailFilterButton[4]
+                    && !dispinfoMakeupDetailFilterButton[5])
                 {
                     foreach (ToggleButton tbtn in listtbtn)
                     {
@@ -2269,6 +2290,7 @@ namespace wpfHouseholdAccounts
                     dispinfoMakeupDetailFilterButton[2] = true;
                     dispinfoMakeupDetailFilterButton[3] = true;
                     dispinfoMakeupDetailFilterButton[4] = true;
+                    dispinfoMakeupDetailFilterButton[5] = true;
                 }
                 else
                 {

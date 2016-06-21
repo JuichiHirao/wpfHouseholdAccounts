@@ -111,6 +111,7 @@
                         <ToggleButton Content="SZE" Width="80" Height="25" Margin="5,0,0,5" VerticalAlignment="Bottom" Click="OnToggleButtonMakeupDetailFilterClick" />
                         <ToggleButton Content="会社" Width="80" Height="25" Margin="5,0,0,5" VerticalAlignment="Bottom" Click="OnToggleButtonMakeupDetailFilterClick" />
                         <ToggleButton Content="会社未払" Width="80" Height="25" Margin="5,0,0,5" VerticalAlignment="Bottom" Click="OnToggleButtonMakeupDetailFilterClick" />
+                        <ToggleButton Content="妻未払" Width="80" Height="25" Margin="5,0,0,5" VerticalAlignment="Bottom" Click="OnToggleButtonMakeupDetailFilterClick" />
                     </StackPanel>
                     <ComboBox Text="" Margin="0,0,250,5" Grid.Column="1" Grid.Row="1"
                               DataContext="{Binding Source={StaticResource formctrlMakeupDetailSortSetting}}" />
