@@ -51,20 +51,37 @@ namespace wpfHouseholdAccounts
                 {
                     MakeupDetailData findData = null;
 
-                    if (data.Id <= 0)
-                        // カードの明細の場合は金銭帳データを取得
-                        findData = MoneyInput.GetData(data, dbcon);
-                    else
-                        findData = data;
+                    if (data.Kind == 5)
+                    {
+                        if (data.Id <= 0)
+                            // 未払明細から一致データを取得
+                            findData = Arrear.GetData(data, dbcon);
+                        else
+                            findData = data;
 
-                    if (findData == null)
-                        throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
+                        if (findData == null)
+                            throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
+
+                        // 未払明細を更新
+                        Arrear.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
+                    }
+                    else
+                    {
+                        if (data.Id <= 0)
+                            // カードの明細の場合は金銭帳データを取得
+                            findData = MoneyInput.GetData(data, dbcon);
+                        else
+                            findData = data;
+
+                        if (findData == null)
+                            throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
+
+                        // 金銭帳を更新
+                        MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
+                    }
 
                     // COMPANY_ARREARS_DETAILへ登録
                     arrear.Regist(findData, maxDataOrder, dbcon);
-
-                    // 金銭帳を更新
-                    MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
 
                     maxDataOrder++;
                 }
@@ -124,22 +141,29 @@ namespace wpfHouseholdAccounts
 
                     Arrear arrearData = Arrear.GetDataByJournalId(findData.Id, dbcon);
 
-                    if (arrearData.DataOrder == maxDataOrder)
+                    if (arrearData != null)
                     {
-                        // COMPANY_ARREARS_DETAILから削除
-                        arrear.Remove(arrearData.Id, dbcon);
+                        if (arrearData.DataOrder == maxDataOrder)
+                        {
+                            // COMPANY_ARREARS_DETAILから削除
+                            arrear.Remove(arrearData.Id, dbcon);
+                        }
+                        else
+                        {
+                            // キャンセルデータは金額をマイナスにして登録
+                            findData.Amount = findData.Amount * -1;
+
+                            // COMPANY_ARREARS_DETAILへ登録
+                            arrear.Regist(findData, maxDataOrder + 1, dbcon);
+                        }
                     }
+
+                    if (findData.Kind == 5)
+                        // 未払明細を更新
+                        Arrear.UpdateDbUsedCompanyArrear(findData.Id, 0, dbcon);
                     else
-                    {
-                        // キャンセルデータは金額をマイナスにして登録
-                        findData.Amount = findData.Amount * -1;
-
-                        // COMPANY_ARREARS_DETAILへ登録
-                        arrear.Regist(findData, maxDataOrder+1, dbcon);
-                    }
-
-                    // 金銭帳を更新
-                    MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, 0, dbcon);
+                        // 金銭帳を更新
+                        MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, 0, dbcon);
                 }
             }
             catch (SqlException sqlex)
