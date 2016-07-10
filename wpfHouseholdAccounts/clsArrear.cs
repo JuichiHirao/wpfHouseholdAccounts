@@ -474,6 +474,67 @@ namespace wpfHouseholdAccounts
             return;
         }
 
+        /// <summary>
+        /// 計算済みのCOMPANY_ARREARS_DETAILを更新する
+        /// </summary>
+        /// <param name="myData"></param>
+        /// <param name="myDataOrder"></param>
+        /// <param name="myDbCon"></param>
+        public static void Update(MakeupDetailData myData, DbConnection myDbCon)
+        {
+            DbConnection dbcon;
+            string mySqlCommand = "";
+
+            // 引数にコネクションが指定されていた場合は指定されたコネクションを使用
+            if (myDbCon != null)
+                dbcon = myDbCon;
+            else
+                dbcon = new DbConnection();
+
+            if (myData.Balance < 0)
+                throw new Exception("GetBalanceの戻り値 COMPANY_ARREARS_DETAILの残高が不正です");
+
+            mySqlCommand = "UPDATE COMPANY_ARREARS_DETAIL ";
+            mySqlCommand += "  SET ";
+            mySqlCommand += "    DATA_ORDER = @DataOrder ";
+            mySqlCommand += "    , JOURNAL_ID = @JournalId ";
+            mySqlCommand += "    , JOURNAL_DATE = @JournalDate ";
+            mySqlCommand += "    , DEBIT_CODE = @DebitCode ";
+            mySqlCommand += "    , CREDIT_CODE = @CreditCode ";
+            mySqlCommand += "    , AMOUNT = @Amount ";
+            mySqlCommand += "    , REMARK = @Remark ";
+            mySqlCommand += "    , BALANCE = @Balance ";
+            mySqlCommand += "  WHERE ID = @CompanyArrearsDetailId ";
+
+            SqlCommand scmd = new SqlCommand(mySqlCommand, dbcon.getSqlConnection());
+
+            SqlParameter[] sqlparams = new SqlParameter[9];
+
+            sqlparams[0] = new SqlParameter("@DataOrder", SqlDbType.Int);
+            sqlparams[0].Value = myData.DataOrder;
+            sqlparams[1] = new SqlParameter("@JournalId", SqlDbType.Int);
+            sqlparams[1].Value = myData.Id;
+            sqlparams[2] = new SqlParameter("@JournalDate", SqlDbType.DateTime);
+            sqlparams[2].Value = myData.Date;
+            sqlparams[3] = new SqlParameter("@DebitCode", SqlDbType.VarChar);
+            sqlparams[3].Value = myData.DebitCode;
+            sqlparams[4] = new SqlParameter("@CreditCode", SqlDbType.VarChar);
+            sqlparams[4].Value = myData.CreditCode;
+            sqlparams[5] = new SqlParameter("@Amount", SqlDbType.Int);
+            sqlparams[5].Value = myData.Amount;
+            sqlparams[6] = new SqlParameter("@Remark", SqlDbType.VarChar);
+            sqlparams[6].Value = myData.Remark;
+            sqlparams[7] = new SqlParameter("@Balance", SqlDbType.Money);
+            sqlparams[7].Value = myData.Balance;
+            sqlparams[8] = new SqlParameter("@CompanyArrearsDetailId", SqlDbType.Int);
+            sqlparams[8].Value = myData.CompanyArrearsDetailId;
+            dbcon.SetParameter(sqlparams);
+
+            myDbCon.execSqlCommand(mySqlCommand);
+
+            return;
+        }
+
         public void Remove(int myId, DbConnection myDbCon)
         {
             DbConnection dbcon;

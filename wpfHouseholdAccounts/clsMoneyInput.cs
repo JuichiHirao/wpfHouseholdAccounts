@@ -807,7 +807,7 @@ namespace wpfHouseholdAccounts
             SelectCommand = "    SELECT 明細種別, 金銭帳ＩＤ AS ID, 年月日 \n";
             SelectCommand = SelectCommand + "        , 借方, 借方上位, 借方名 AS 借方科目名 \n";
             SelectCommand = SelectCommand + "        , 貸方, 貸方上位, 貸方名 AS 貸方科目名 \n";
-            SelectCommand = SelectCommand + "        , 金額, USED_COMPANY_ARREAR, 摘要, 登録日, DATA_ORDER, BALANCE \n";
+            SelectCommand = SelectCommand + "        , 金額, USED_COMPANY_ARREAR, 摘要, 登録日, COMPANY_ARREARS_DETAIL_ID, DATA_ORDER, BALANCE \n";
             SelectCommand = SelectCommand + "      FROM V_INPUTDETAIL \n";
 
             myDbCon.openConnection();
@@ -843,8 +843,9 @@ namespace wpfHouseholdAccounts
                 data.UsedCompanyArrear = DbExportCommon.GetDbInt(reader, 10);
                 data.Remark = DbExportCommon.GetDbString(reader, 11);
                 data.RegistDate = DbExportCommon.GetDbDateTime(reader, 12);
-                data.DataOrder = DbExportCommon.GetDbInt(reader, 13);
-                data.Balance = DbExportCommon.GetDbMoney(reader, 14);
+                data.CompanyArrearsDetailId = DbExportCommon.GetDbInt(reader, 13);
+                data.DataOrder = DbExportCommon.GetDbInt(reader, 14);
+                data.Balance = DbExportCommon.GetDbMoney(reader, 15);
 
                 listDetail.Add(data);
             }

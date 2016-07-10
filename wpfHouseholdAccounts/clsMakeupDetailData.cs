@@ -86,6 +86,8 @@ namespace wpfHouseholdAccounts
         }
 
         public int Id { get; set; }
+
+        public int CompanyArrearsDetailId { get; set; }
         public int Kind { get; set; }
         public DateTime Date { get; set; }
         /// <summary>
@@ -221,7 +223,6 @@ namespace wpfHouseholdAccounts
         }
 
         public int UsedCompanyArrear { get; set; }
-
 
         public DateTime RegistDate { get; set; }
 

@@ -2862,37 +2862,97 @@ namespace wpfHouseholdAccounts
             ColViewListInputDataDetail.SortDescriptions.Clear();
             ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("DataOrder", ListSortDirection.Ascending));
 
+            DateTime beforeDate = new DateTime(1900,1,1);
+            MakeupDetailData defaultMakeupData = null;
+            string message = "";
+            int TargetArrangement = -1;
 
-            List<MakeupDetailData> listData = new List<MakeupDetailData>();
+            // 更新後に金額チェックをするため、最後のBalance金額を取得
+            long lastBalance = 0;
+            foreach (MakeupDetailData data in ColViewListInputDataDetail)
+                lastBalance = data.Balance;
 
-            int targetDataOrder = 30;
-            long balance = 0;
-            foreach(MakeupDetailData data in ColViewListInputDataDetail)
+            foreach (MakeupDetailData data in ColViewListInputDataDetail)
             {
-                if (data.DataOrder == targetDataOrder-1)
+                // 初期データ[ID==0]は別に格納する
+                if (data.DataOrder == 0)
+                    defaultMakeupData = data;
+
+                if (data.Date < beforeDate && data.DataOrder > 1)
                 {
-                    balance = data.Balance;
+                    message = "日付が不正なデータが存在します、 No[" + data.DataOrder + "] より先のデータを日付毎に修正しますか？\n" + data.Date.ToString("yyyy/MM/dd") + " > " + beforeDate.ToString("yyyy/MM/dd");
+                    TargetArrangement = data.DataOrder;
                     break;
                 }
+
+                beforeDate = data.Date;
             }
+
+            if (TargetArrangement < 0)
+            {
+                MessageBox.Show("全データが日付順で整理済み");
+                return;
+            }
+
+            MessageBoxResult result = MessageBox.Show(message, "整理開始確認", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.Cancel)
+                return;
 
             ColViewListInputDataDetail.SortDescriptions.Clear();
             ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Ascending));
             ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("DataOrder", ListSortDirection.Ascending));
 
-            foreach (MakeupDetailData data in ColViewListInputDataDetail)
-            {
-                if (data.DataOrder >= targetDataOrder)
-                {
-                    if (data.DebitCode.IndexOf("1201") == 0)
-                        data.Balance = balance - data.Amount;
-                    else
-                        data.Balance = balance + data.Amount;
+            long balance = 0;
 
-                    balance = data.Balance;
+            // データベース：トランザクションを開始
+            dbcon.BeginTransaction("ARREAR_ARRANGEMENT");
+            try
+            {
+                balance = defaultMakeupData.Balance;
+                int DataOrder = 1;
+                foreach (MakeupDetailData data in ColViewListInputDataDetail)
+                {
+                    if (data.DataOrder == 0)
+                        continue;
+
+                    if (data.DebitCode.IndexOf("1201") == 0)
+                        balance = balance - data.Amount;
+                    else
+                        balance = balance + data.Amount;
+
+                    if (data.DataOrder != DataOrder || data.Balance != balance)
+                    {
+                        Debug.Print("No[" + data.DataOrder + "] balance [" + balance + "]");
+                        data.DataOrder = DataOrder;
+                        data.Balance = balance;
+                        Arrear.Update(data, dbcon);
+                    }
+                    //else
+                    //    Debug.Print("No[" + data.DataOrder + "] balance [" + balance + "]");
+
+                    DataOrder++;
+                }
+
+                if (balance != lastBalance)
+                {
+                    dbcon.RollbackTransaction();
+                    MessageBox.Show("最後の金額が合わないので、ロールバックします 登録データ [" + balance);
+                    return;
                 }
             }
+            catch (SqlException sqlex)
+            {
+                dbcon.RollbackTransaction();
+                MessageBox.Show("SqlException発生、ロールバックします\n" + sqlex.Message);
+                return;
+            }
+            catch (Exception ex)
+            {
+                dbcon.RollbackTransaction();
+                MessageBox.Show("Exception発生、ロールバックします\n" + ex.Message);
+                return;
+            }
+            dbcon.CommitTransaction();
         }
-
     }
 }
