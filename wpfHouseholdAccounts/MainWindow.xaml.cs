@@ -118,6 +118,7 @@ namespace wpfHouseholdAccounts
 
             _logger.Debug("Window_Loaded");
 
+
             dispinfoMakeupWayUpperOnly = true;
 
             menuitemUpperOnly.IsChecked = dispinfoMakeupWayUpperOnly;
@@ -154,6 +155,12 @@ namespace wpfHouseholdAccounts
             parent.Calculate(DateTime.Now, BaseDate, Payment.GridvDecisionPaymentSetData());
 
             dgridMakeupNowInfo.ItemsSource = parent.listMoneyNowData;
+
+            // SQLServerの日付を取得して、サーバー側の日付がずれていたら背景を赤にする
+            DateTime dtDbNow = dbcon.getDateStringSql("SELECT GETDATE()");
+            TimeSpan span = dtDbNow - DateTime.Now;
+            if (span.Days > 30 || span.Days < -30)
+                this.Background = Brushes.Red;
 
             dbcon.closeConnection();
 

@@ -531,5 +531,46 @@ namespace wpfHouseholdAccounts
 
             return lngAmount;
         }
+        public DateTime getDateStringSql(string mySqlCommand)
+        {
+            SqlCommand myCommand;
+            SqlDataReader myReader;
+
+            string resultStr = "";
+
+            //dbcon.Open();
+
+            // トランザクションが開始済の場合
+            if (dbtrans == null)
+            {
+                this.openConnection();
+                myCommand = new SqlCommand(mySqlCommand, this.getSqlConnection());
+            }
+            else
+            {
+                myCommand = new SqlCommand(mySqlCommand, this.getSqlConnection());
+                myCommand.Connection = this.getSqlConnection();
+                myCommand.Transaction = this.dbtrans;
+            }
+
+            if (parameters != null)
+            {
+                for (int IndexParam = 0; IndexParam < parameters.Length; IndexParam++)
+                {
+                    myCommand.Parameters.Add(parameters[IndexParam]);
+                }
+            }
+            //myCommand = new SqlCommand( mySqlCommand, dbcon );
+
+            myReader = myCommand.ExecuteReader();
+
+            if (myReader.Read())
+                return myReader.GetDateTime(0);
+                //resultStr = myReader.GetDateTime(0).ToString("yyyy/MM/dd HH:mm:dd");
+
+            myReader.Close();
+
+            return new DateTime(1900,1,1);
+        }
     }
 }
