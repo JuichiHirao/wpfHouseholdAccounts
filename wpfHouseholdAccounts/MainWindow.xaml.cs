@@ -2872,30 +2872,33 @@ namespace wpfHouseholdAccounts
             DateTime beforeDate = new DateTime(1900,1,1);
             MakeupDetailData defaultMakeupData = null;
             string message = "";
-            int TargetArrangement = -1;
 
             // 更新後に金額チェックをするため、最後のBalance金額を取得
-            long lastBalance = 0;
+            long balanceLast = 0;
             foreach (MakeupDetailData data in ColViewListInputDataDetail)
-                lastBalance = data.Balance;
+                balanceLast = data.Balance;
 
             foreach (MakeupDetailData data in ColViewListInputDataDetail)
             {
                 // 初期データ[ID==0]は別に格納する
                 if (data.DataOrder == 0)
+                {
                     defaultMakeupData = data;
+                    if (message.Length > 0)
+                        break;
+                }
 
-                if (data.Date < beforeDate && data.DataOrder > 1)
+                if (data.Date < beforeDate && data.DataOrder != 0)
                 {
                     message = "日付が不正なデータが存在します、 No[" + data.DataOrder + "] より先のデータを日付毎に修正しますか？\n" + data.Date.ToString("yyyy/MM/dd") + " > " + beforeDate.ToString("yyyy/MM/dd");
-                    TargetArrangement = data.DataOrder;
-                    break;
+                    if (defaultMakeupData != null)
+                        break;
                 }
 
                 beforeDate = data.Date;
             }
 
-            if (TargetArrangement < 0)
+            if (message.Length <= 0)
             {
                 MessageBox.Show("全データが日付順で整理済み");
                 return;
@@ -2909,7 +2912,7 @@ namespace wpfHouseholdAccounts
             ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Ascending));
             ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("DataOrder", ListSortDirection.Ascending));
 
-            long balance = 0;
+            long balance = 0, balanceAdd = 0;
 
             // データベース：トランザクションを開始
             dbcon.BeginTransaction("ARREAR_ARRANGEMENT");
@@ -2921,6 +2924,11 @@ namespace wpfHouseholdAccounts
                 {
                     if (data.DataOrder == 0)
                         continue;
+
+                    if (data.DataOrder == -1)
+                    {
+                        balanceAdd += data.Amount;
+                    }
 
                     if (data.DebitCode.IndexOf("1201") == 0)
                         balance = balance - data.Amount;
@@ -2940,21 +2948,27 @@ namespace wpfHouseholdAccounts
                     DataOrder++;
                 }
 
-                if (balance != lastBalance)
+                if (balance != balanceLast)
                 {
-                    dbcon.RollbackTransaction();
-                    MessageBox.Show("最後の金額が合わないので、ロールバックします 登録データ [" + balance);
-                    return;
+                    MessageBoxResult mbResult = MessageBox.Show("最後の金額が合わないが、処理を継続しますか？\n  計算結果 [" + balance + "]  現在の最後の残高 [" + balanceLast + "] 追加データ合計 [" + balanceAdd + "]", "金額不一致確認", MessageBoxButton.OKCancel);
+
+                    if (mbResult == MessageBoxResult.Cancel)
+                    {
+                        dbcon.RollbackTransaction();
+                        return;
+                    }
                 }
             }
             catch (SqlException sqlex)
             {
+                Debug.Write(sqlex);
                 dbcon.RollbackTransaction();
                 MessageBox.Show("SqlException発生、ロールバックします\n" + sqlex.Message);
                 return;
             }
             catch (Exception ex)
             {
+                Debug.Write(ex);
                 dbcon.RollbackTransaction();
                 MessageBox.Show("Exception発生、ロールバックします\n" + ex.Message);
                 return;
