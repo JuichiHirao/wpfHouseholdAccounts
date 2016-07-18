@@ -157,7 +157,7 @@ namespace wpfHouseholdAccounts
         }
         public long Amount { get; set; }
         public string Remark { get; set; }
-
+        public int UsedCompanyArrear { get; set; }
         public MoneyInputData()
         {
             DateTime dt = DateTime.Now;
@@ -166,7 +166,7 @@ namespace wpfHouseholdAccounts
             CreditCode = "";
             Amount = 0;
             Remark = "";
-            //Date = null;
+            UsedCompanyArrear = 0;
         }
 
         private void NotifyPropertyChanged(String info)
