@@ -391,7 +391,7 @@ namespace wpfHouseholdAccounts
             return arrear;
         }
 
-        public void Regist(MoneyInputData myData, int myDataOrder, DbConnection myDbCon)
+        public void Register(MoneyInputData myData, int myDataOrder, DbConnection myDbCon)
         {
             DbConnection dbcon;
 
@@ -402,6 +402,11 @@ namespace wpfHouseholdAccounts
                 dbcon = new DbConnection();
 
             MakeupDetailData detailData = new MakeupDetailData();
+
+            if (myData.id > 0)
+                detailData.Id = myData.id;
+            else
+                detailData.Id = -1;
 
             detailData.Date = myData.Date;
             detailData.DebitCode = myData.DebitCode;

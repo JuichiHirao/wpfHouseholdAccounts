@@ -186,6 +186,51 @@ namespace wpfHouseholdAccounts
             dbcon.CommitTransaction();
         }
 
+        public void ReceptionCompanyJournal(MoneyInputData myInputData, DbConnection dbcon)
+        {
+            // データベース：トランザクションを開始
+            if (!dbcon.isTransaction())
+                dbcon.BeginTransaction("ARREAR_RECEPTION");
+
+            Arrear arrear = new Arrear();
+
+            int maxId = dbcon.getIntSql("SELECT MAX(金銭帳ＩＤ) FROM 金銭帳");
+
+            try
+            {
+                MoneyInput.InsertDbData(myInputData, dbcon);
+                int InserId = dbcon.getIntSql("SELECT MAX(金銭帳ＩＤ) FROM 金銭帳");
+
+                if (maxId < InserId)
+                    myInputData.id = InserId;
+                else
+                    throw new BussinessException("金銭帳テーブルへ挿入したIDが不正です maxID [" + maxId + "] 挿入したID [" + InserId + "]");
+
+                // iNSERTした金銭帳ＩＤ
+                // COMPANY_ARREARS_DETAILへ登録
+                arrear.Register(myInputData, -1, dbcon);
+            }
+            catch (SqlException sqlex)
+            {
+                _logger.Error(sqlex);
+                Debug.Write(sqlex);
+                if (!dbcon.isTransaction())
+                    dbcon.RollbackTransaction();
+                throw new BussinessException("SqlException発生 Arrears.Resception " + sqlex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                Debug.Write(ex);
+                if (!dbcon.isTransaction())
+                    dbcon.RollbackTransaction();
+                throw new BussinessException("Exception発生 Arrears.Resception " + ex.Message);
+            }
+
+            if (!dbcon.isTransaction())
+                dbcon.CommitTransaction();
+        }
+
         public void Reception(MoneyInputData myInputData, DbConnection dbcon)
         {
             // データベース：トランザクションを開始
@@ -208,9 +253,8 @@ namespace wpfHouseholdAccounts
                     _logger.Warn("menuitemAddCompanyArrear_Click ", ex);
                 }
 
-
                 // COMPANY_ARREARS_DETAILへ登録
-                arrear.Regist(myInputData, maxDataOrder, dbcon);
+                arrear.Register(myInputData, maxDataOrder, dbcon);
 
                 // 金銭帳を更新
                 MoneyInput.UpdateDbUsedCompanyArrear(myInputData.id, 1, dbcon);
