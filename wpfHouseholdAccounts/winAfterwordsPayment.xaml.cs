@@ -511,6 +511,37 @@ namespace wpfHouseholdAccounts
                 MessageBox.Show("金額が不正です");
                 return;
             }
+            DateTime dtDecision = new DateTime(1900, 1, 1);
+            if (txtDecisionDate.Text.Length > 0)
+            {
+                try
+                {
+                    dtDecision = Convert.ToDateTime(txtDecisionDate.Text);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("確定日が不正です");
+                    return;
+                }
+            }
+
+
+            // 会社仕訳の場合
+            if (chkCompanyJournal.IsChecked != null && (bool)chkCompanyJournal.IsChecked)
+            {
+                MoneyInputData inputData = new MoneyInputData();
+
+                inputData.Date = dtDecision;
+                inputData.DebitCode = txtDebitCode.Text;
+                inputData.CreditCode = txtCreditCode.Text;
+                inputData.Amount = amount;
+                inputData.Remark = txtRemark.Text;
+                
+                MoneyInputRegist.Execute(inputData, account, new DbConnection());
+
+                MessageBox.Show("正常に金銭帳と未払明細へ登録されました");
+                return;
+            }
 
             int kind = 0;
             try
@@ -546,19 +577,6 @@ namespace wpfHouseholdAccounts
             }
             catch (Exception)
             {
-            }
-            DateTime dtDecision = new DateTime(1900,1,1);
-            if (txtDecisionDate.Text.Length > 0)
-            {
-                try
-                {
-                    dtDecision = Convert.ToDateTime(txtDecisionDate.Text);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("確定日が不正です");
-                    return;
-                }
             }
             if (IsEdit)
             {

@@ -214,21 +214,21 @@ namespace wpfHouseholdAccounts
             }
             catch (SqlException errsql)
             {
-                _logger.ErrorException("SqlException発生 ", errsql);
+                _logger.Error(errsql, "SqlException発生 ");
                 // データベースの更新をロールバックする
                 dbcon.RollbackTransaction();
                 throw errsql;
             }
             catch (BussinessException errbsn)
             {
-                _logger.ErrorException("BussinessException発生 ", errbsn);
+                _logger.Error(errbsn, "BussinessException発生 ");
                 // データベースの更新をロールバックする
                 dbcon.RollbackTransaction();
                 throw errbsn;
             }
             catch (Exception err)
             {
-                _logger.ErrorException("Exception発生 ", err);
+                _logger.Error(err, "Exception発生");
                 // データベースの更新をロールバックする
                 dbcon.RollbackTransaction();
                 throw err;
@@ -238,5 +238,62 @@ namespace wpfHouseholdAccounts
 
             return;
         }
+
+        /// <summary>
+        /// 後日確認入力の会社未払仕訳での登録用
+        /// </summary>
+        /// <param name="myRegistDate"></param>
+        /// <param name="myCashInfo"></param>
+        /// <param name="myCashExpenseCompanyInfo"></param>
+        public static void Execute(MoneyInputData myInputData, Account myAccount, DbConnection myDbCon)
+        {
+            if (myDbCon == null)
+                myDbCon = new DbConnection();
+
+            string DebitKind = myAccount.getAccountKind(myInputData.DebitCode);
+            string CreditKind = myAccount.getAccountKind(myInputData.CreditCode);
+
+            if (DebitKind != Account.KIND_ASSETS_COMPANY_ARREAR
+                && CreditKind != Account.KIND_ASSETS_COMPANY_ARREAR)
+            {
+                throw new BussinessException("借方 or 貸方が会社未払のコードの必要があります");
+            }
+
+            myInputData.UsedCompanyArrear = 1;
+
+            // データベース：トランザクションを開始
+            myDbCon.BeginTransaction("COMPANY_JOURNAL_BEGIN");
+            try
+            {
+                Arrears arrears = new Arrears();
+                arrears.ReceptionCompanyJournal(myInputData, myDbCon);
+            }
+            catch (SqlException errsql)
+            {
+                _logger.Error(errsql, "SqlException発生 ");
+                // データベースの更新をロールバックする
+                myDbCon.RollbackTransaction();
+                throw errsql;
+            }
+            catch (BussinessException errbsn)
+            {
+                _logger.Error(errbsn, "BussinessException発生 ");
+                // データベースの更新をロールバックする
+                myDbCon.RollbackTransaction();
+                throw errbsn;
+            }
+            catch (Exception err)
+            {
+                _logger.Error(err, "Exception発生");
+                // データベースの更新をロールバックする
+                myDbCon.RollbackTransaction();
+                throw err;
+            }
+            // データベースの更新をコミットする
+            myDbCon.CommitTransaction();
+
+            return;
+        }
+
     }
 }

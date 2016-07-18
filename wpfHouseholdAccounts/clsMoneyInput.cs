@@ -247,13 +247,13 @@ namespace wpfHouseholdAccounts
                 dbcon = new DbConnection();
 
             mySqlCommand = "INSERT INTO 金銭帳 ";
-            mySqlCommand = mySqlCommand + "( 年月日, 借方, 貸方, 金額, 摘要 ) ";
-            mySqlCommand = mySqlCommand + "VALUES( @年月日, @借方コード, @貸方コード, @金額, @摘要 ) ";
+            mySqlCommand = mySqlCommand + "( 年月日, 借方, 貸方, 金額, 摘要, USED_COMPANY_ARREAR ) ";
+            mySqlCommand = mySqlCommand + "VALUES( @年月日, @借方コード, @貸方コード, @金額, @摘要, @UsedCompanyArrear ) ";
 
             SqlCommand scmd = new SqlCommand(mySqlCommand, dbcon.getSqlConnection());
             DataTable dtSaraly = new DataTable();
 
-            SqlParameter[] sqlparams = new SqlParameter[5];
+            SqlParameter[] sqlparams = new SqlParameter[6];
 
             sqlparams[0] = new SqlParameter("@年月日", SqlDbType.DateTime);
             sqlparams[0].Value = myData.Date;
@@ -265,6 +265,8 @@ namespace wpfHouseholdAccounts
             sqlparams[3].Value = myData.Amount;
             sqlparams[4] = new SqlParameter("@摘要", SqlDbType.VarChar);
             sqlparams[4].Value = myData.Remark;
+            sqlparams[5] = new SqlParameter("@UsedCompanyArrear", SqlDbType.Int);
+            sqlparams[5].Value = myData.UsedCompanyArrear;
             dbcon.SetParameter(sqlparams);
 
             myDbCon.execSqlCommand(mySqlCommand);
