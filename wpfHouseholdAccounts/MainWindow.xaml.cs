@@ -333,6 +333,12 @@ namespace wpfHouseholdAccounts
 
         private void SetViewFilterAndSort()
         {
+            bool isWithCompanyCard = false;
+            object oWithCompanyCard = chkWithCompanyCard.IsChecked;
+
+            if (oWithCompanyCard != null)
+                isWithCompanyCard = Convert.ToBoolean(oWithCompanyCard);
+
             if (dispctrlDataGridRefreshMakeupDetail)
             {
                 // 金銭帳入力データの取得
@@ -589,10 +595,31 @@ namespace wpfHouseholdAccounts
                                 IsMatch = false;
                         }
 
-                        if (dispinfoMakeupDetailFilterButton[4] && data.Kind == 4)
-                            IsMatch = true;
+                        if (isWithCompanyCard)
+                        {
+                            if (dispinfoMakeupDetailFilterButton[4] && data.Kind == 4)
+                                IsMatch = true;
+                            else
+                            {
+                                if (dispinfoMakeupDetailFilterButton[4]
+                                    && data.DebitCode == "20801" || (data.CreditCode == "20801" && data.Kind == 2))
+                                    IsMatch = true;
+                                else
+                                {
+                                    if (dispinfoMakeupDetailFilterButton[1] && data.Kind == 2)
+                                        IsMatch = true;
+                                    else
+                                        IsMatch = false;
+                                }
+                            }
+                        }
                         else
-                            IsMatch = false;
+                        {
+                            if (dispinfoMakeupDetailFilterButton[4] && data.Kind == 4)
+                                IsMatch = true;
+                            else
+                                IsMatch = false;
+                        }
 
                         if (dispinfoMakeupDetailFilterButton[5] && data.Kind == 5)
                             IsMatch = true;
@@ -604,8 +631,55 @@ namespace wpfHouseholdAccounts
                     return IsMatch;
                 };
 
-                ColViewListInputDataDetail.SortDescriptions.Clear();
-                ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("RegistDate", ListSortDirection.Descending));
+                if (dispinfoMakeupDetailFilterButton != null && dispinfoMakeupDetailFilterButton[4])
+                {
+                    ColViewListInputDataDetail.SortDescriptions.Clear();
+                    ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Ascending));
+                    ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("DataOrder", ListSortDirection.Ascending));
+
+                    MakeupDetailData defaultMakeupData = new MakeupDetailData();
+                    foreach (MakeupDetailData data in ColViewListInputDataDetail)
+                    {
+                        if (data.DataOrder == 0)
+                        {
+                            defaultMakeupData = data;
+                            break;
+                        }
+                    }
+
+                    long balance = 0;
+
+                    balance = defaultMakeupData.Balance;
+                    int DataOrder = 1;
+                    foreach (MakeupDetailData data in ColViewListInputDataDetail)
+                    {
+                        if (data.DataOrder == 0)
+                            continue;
+
+                        if (data.DebitCode.IndexOf("1201") == 0
+                            || data.DebitCode == "20801")
+                            balance = balance - data.Amount;
+                        else
+                            balance = balance + data.Amount;
+
+                        if (data.DataOrder != DataOrder || data.Balance != balance)
+                        {
+                            Debug.Print("No[" + data.DataOrder + "] balance [" + balance + "]");
+                            data.DataOrder = DataOrder;
+                            data.Balance = balance;
+                            //Arrear.Update(data, dbcon);
+                        }
+                        //else
+                        //    Debug.Print("No[" + data.DataOrder + "] balance [" + balance + "]");
+
+                        DataOrder++;
+                    }
+                }
+                else
+                {
+                    ColViewListInputDataDetail.SortDescriptions.Clear();
+                    ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("RegistDate", ListSortDirection.Descending));
+                }
             }
 
             DataGridMakeupDetailWidthSetting();
