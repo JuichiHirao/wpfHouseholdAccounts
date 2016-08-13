@@ -93,7 +93,7 @@ namespace wpfHouseholdAccounts
                 }
                 if (myData.DebitCode == "53003")
                 {
-                    dataCsv.DebitName = "役員報酬";
+                    dataCsv.DebitName = "雑給";
                     dataCsv.Remark = "平尾静恵";
                 }
                 if (myData.DebitCode == "52001")
