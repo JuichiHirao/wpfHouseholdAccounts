@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using System.IO;
+using NLog;
 
 namespace wpfHouseholdAccounts
 {
 	class Environment
 	{
-		public string[] Name	= null;
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public string[] Name	= null;
 		public string[] Value	= null;
 
 		int Count = 0;
@@ -111,6 +115,30 @@ namespace wpfHouseholdAccounts
 
 			return;
 		}
+
+        public string GetXmlSavePathname(string myName)
+        {
+            string xmlOutputPathname = "";
+            // 入力した内容をXmlファイル名のSuffixに日付を付けて保存する
+            string xmlBaseFilename = GetValue(myName);
+
+            // 保存パスの取得
+            string xmlPath = GetValue("XmlSavePath");
+
+            if (!Directory.Exists(xmlPath))
+            {
+                DirectoryInfo dir = Directory.CreateDirectory(xmlPath);
+                if (dir == null)
+                    throw new Exception("Directory.CreateDirectory失敗 [" + dir.FullName + "]");
+
+                xmlOutputPathname = Path.Combine(dir.FullName, xmlBaseFilename);
+            }
+            else
+                xmlOutputPathname = Path.Combine(xmlPath, xmlBaseFilename);
+
+            return xmlOutputPathname;
+
+        }
 
         /// <summary>
         /// 主に後日確認画面から実行される

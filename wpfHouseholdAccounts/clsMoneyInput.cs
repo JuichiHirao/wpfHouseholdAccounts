@@ -7,6 +7,8 @@ using System.Data.SqlClient;
 using System.Xml.Linq;
 using System.Diagnostics;
 using NLog;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace wpfHouseholdAccounts
 {
@@ -94,35 +96,103 @@ namespace wpfHouseholdAccounts
             }
             return false;
         }
+
+        public static void SaveXml(Environment myEnv, DateTime myRegisterDate, List<MoneyInputData> myData)
+        {
+            string xmlBaseFilename = "", xmlFilename = "", xmlPath = "", xmlOutputPathname = "";
+            int xmlDuration = 60;
+            try
+            {
+                xmlFilename = myEnv.GetValue("XmlMoneyInputFileName");
+                xmlBaseFilename = myEnv.GetXmlSavePathname("XmlMoneyInputFileName");
+                xmlOutputPathname = myEnv.GetXmlSavePathname("XmlMoneyInputFileName") + myRegisterDate.ToString(".yyyyMMdd");
+
+                if (xmlOutputPathname.Equals(myRegisterDate.ToString(".yyyyMMdd")))
+                {
+                    throw new Exception("XmlMoneyInputFileNameの設定取得でエラー");
+                }
+
+                // 保存期間を取得（日数）
+                xmlDuration = Convert.ToInt32(myEnv.GetValue("XmlSaveDuration"));
+                // 保存パスの取得
+                xmlPath = myEnv.GetValue("XmlSavePath");
+
+                string[] arrDirFiles = Directory.GetFiles(xmlPath, "*", SearchOption.TopDirectoryOnly);
+
+                DateTime now = DateTime.Now;
+                DateTime saveDuration = now.AddDays(xmlDuration*-1);
+
+                Regex regexBaseFilename = new Regex(xmlFilename + ".*");
+                Regex regexDate = new Regex("20[0-3][0-9][01][0-9][0-3][0-9]");
+                foreach (string file in arrDirFiles)
+                {
+                    // 形式に一致（基本ファイル名と日付がファイル名にある場合）するファイルを対象とする
+                    Match matchDate = regexDate.Match(file);
+                    if (regexBaseFilename.IsMatch(file) && matchDate.Success)
+                    {
+                        DateTime dt = DateTime.ParseExact(matchDate.Value.ToString(), "yyyyMMdd", null);
+                        // saveDurationの方が大きい場合は期間外のファイルなので削除
+                        if (dt <= saveDuration)
+                        {
+                            try
+                            {
+                                File.Delete(file);
+                                _logger.Debug("保存期間を過ぎたファイルを削除します [" + file + "]");
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.Error(ex, "保存期間を過ぎたファイルの削除失敗");
+                            }
+                        }
+                    }
+                    else
+                        _logger.Debug("Save日付にマッチしないファイルが存在します [" + file + "]");
+                }
+
+                // XMLファイルへ出力
+                ExportXml(xmlOutputPathname, myData);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "入力データの保存失敗");
+                Debug.Write(ex);
+            }
+
+        }
+
         public static void ExportXml(string myFilename, List<MoneyInputData> myData)
         {
             XElement root = new XElement("MoneyInputData");
 
-            foreach (MoneyInputData data in myData)
+            if (myData != null)
             {
-                if (data == null)
-                    continue;
+                foreach (MoneyInputData data in myData)
+                {
+                    if (data == null)
+                        continue;
 
-                if (data.Date == null
-                    || data.DebitCode == null
-                    || data.CreditCode == null)
-                    continue;
+                    if (data.Date == null
+                        || data.DebitCode == null
+                        || data.CreditCode == null)
+                        continue;
 
-                if (data.Date.Year <= 1900
-                    && data.DebitCode.Length <= 0
-                    && data.CreditCode.Length <= 0)
-                    continue;
+                    if (data.Date.Year <= 1900
+                        && data.DebitCode.Length <= 0
+                        && data.CreditCode.Length <= 0)
+                        continue;
 
-                root.Add(new XElement("MoneyInput"
-                                    , new XElement("年月日", data.Date)
-                                    , new XElement("借方コード", data.DebitCode)
-                                    , new XElement("借方名", data.DebitName)
-                                    , new XElement("貸方コード", data.CreditCode)
-                                    , new XElement("貸方名", data.CreditName)
-                                    , new XElement("金額", data.Amount)
-                                    , new XElement("摘要", data.Remark)
-                            ));
+                    root.Add(new XElement("MoneyInput"
+                                        , new XElement("年月日", data.Date)
+                                        , new XElement("借方コード", data.DebitCode)
+                                        , new XElement("借方名", data.DebitName)
+                                        , new XElement("貸方コード", data.CreditCode)
+                                        , new XElement("貸方名", data.CreditName)
+                                        , new XElement("金額", data.Amount)
+                                        , new XElement("摘要", data.Remark)
+                                ));
+                }
             }
+
             root.Save(myFilename);
         }
         public static List<MoneyInputData> ImportXml(string myFilename)

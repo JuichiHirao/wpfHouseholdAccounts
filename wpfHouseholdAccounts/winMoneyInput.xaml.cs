@@ -60,7 +60,7 @@ namespace wpfHouseholdAccounts
             SetEnvironmentInfo();
 
             // XMLから保存データを取得（存在する場合のみ）
-            string XmlFileName = env.GetValue("XmlMoneyInputFileName");
+            string XmlFileName = env.GetXmlSavePathname("XmlMoneyInputFileName");
             dgridMoneyInput.ItemsSource = MoneyInput.ImportXml(XmlFileName);
 
             // リストボックスへ費用項目の表示
@@ -154,20 +154,20 @@ namespace wpfHouseholdAccounts
                 env.SetData("現在現金金額", txtCashNow.Text);
                 env.SetData("現在現金会社金額", txtCashCompanyNow.Text);
 
-                string XmlFileName = env.GetValue("XmlMoneyInputFileName");
+                string XmlFileName = env.GetXmlSavePathname("XmlMoneyInputFileName");
 
                 List<MoneyInputData> inputdata = (List<MoneyInputData>)dgridMoneyInput.ItemsSource;
                 MoneyInput.ExportXml(XmlFileName, inputdata);
 
                 // XMLからデータを保存
-                XmlFileName = env.GetValue("XmlMoneyInputSaveDataFileName");
+                XmlFileName = env.GetXmlSavePathname("XmlMoneyInputSaveDataFileName");
 
                 List<MoneyInputData> savedata = (List<MoneyInputData>)dgridSaveData.ItemsSource;
                 MoneyInput.ExportXml(XmlFileName, savedata);
             }
             catch (Exception ex)
             {
-                _logger.ErrorException("Window_Closing ", ex);
+                _logger.Error(ex, "Window_Closing ");
                 Debug.Print(ex.Message);
                 Debug.Print(ex.StackTrace);
             }
@@ -177,6 +177,11 @@ namespace wpfHouseholdAccounts
         {
             List<MoneyInputData> listInputData = (List<MoneyInputData>)dgridMoneyInput.ItemsSource;
 
+            if (listInputData == null || listInputData.Count <= 0)
+            {
+                MessageBox.Show("登録対象のデーターが存在しません");
+                return;
+            }
             try
             {
                 // 入力チェック 入力途中の行は対象としない
@@ -192,10 +197,15 @@ namespace wpfHouseholdAccounts
                 MoneyNowData dataCash = parentNowInfo.GetCash();
                 MoneyNowData dataCashCompany = parentNowInfo.GetCashExpenseCampany();
 
-                // 登録処理の実行
-                //   DBのトランザクションは同メソッド内で完結
                 MoneyInputRegist reg = new MoneyInputRegist(listInputData, account, dbcon);
                 DateTime dtReg = Convert.ToDateTime(dispinfoRegistDate);
+
+                // 入力した内容をXmlファイル名のSuffixに日付を付けて保存する
+                List<MoneyInputData> inputdata = (List<MoneyInputData>)dgridMoneyInput.ItemsSource;
+                MoneyInput.SaveXml(env, dtReg, inputdata);
+
+                // 登録処理の実行
+                //   DBのトランザクションは同メソッド内で完結
                 reg.Execute(dtReg, dataCash, dataCashCompany);
 
                 listInputData.Clear();
@@ -210,7 +220,7 @@ namespace wpfHouseholdAccounts
             }
             catch(Exception ex)
             {
-                _logger.ErrorException("btnRegist_Click ", ex);
+                _logger.Error(ex, "btnRegist_Click ");
                 Debug.Print(ex.Message);
                 Debug.Print(ex.StackTrace);
 
@@ -458,7 +468,7 @@ namespace wpfHouseholdAccounts
                 lgridSaveData.Visibility = System.Windows.Visibility.Hidden;
 
                 // XMLからデータを保存
-                XmlFileName = env.GetValue("XmlMoneyInputSaveDataFileName");
+                XmlFileName = env.GetXmlSavePathname("XmlMoneyInputSaveDataFileName");
 
                 List<MoneyInputData> savedata = (List<MoneyInputData>)dgridSaveData.ItemsSource;
                 MoneyInput.ExportXml(XmlFileName, savedata);
@@ -467,13 +477,15 @@ namespace wpfHouseholdAccounts
             }
 
             // XMLから保存データを取得（存在する場合のみ）
-            XmlFileName = env.GetValue("XmlMoneyInputSaveDataFileName");
+            XmlFileName = env.GetXmlSavePathname("XmlMoneyInputSaveDataFileName");
 
             if (!System.IO.File.Exists(XmlFileName))
             {
-                Debug.Print("XmlMoneyInputSaveDataFileName [" + XmlFileName + "] not found");
-                _logger.Debug("XmlMoneyInputSaveDataFileName [" + XmlFileName + "] not found");
-                return;
+                Debug.Print("XmlMoneyInputSaveDataFileName [" + XmlFileName + "] not found. create");
+                _logger.Debug("XmlMoneyInputSaveDataFileName [" + XmlFileName + "] not found. create");
+
+                List<MoneyInputData> savedata = (List<MoneyInputData>)dgridSaveData.ItemsSource;
+                MoneyInput.ExportXml(XmlFileName, savedata);
             }
 
             dgridSaveData.ItemsSource = MoneyInput.ImportXml(XmlFileName);
