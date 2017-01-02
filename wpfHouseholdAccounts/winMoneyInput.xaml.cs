@@ -140,7 +140,7 @@ namespace wpfHouseholdAccounts
                         data.IsCapture = true;
                     }
                     else
-                        row.Background = Brushes.LemonChiffon;
+                        if (row != null)  row.Background = Brushes.LemonChiffon;
                 }
             }
 
