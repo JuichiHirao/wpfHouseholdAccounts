@@ -10,23 +10,31 @@ namespace wpfHouseholdAccounts.summary
     {
         public int Id { get; set; }
 
-        public String Name { get; set; }
+        public string Name { get; set; }
 
-        public String ParentName { get; set; }
+        public string ParentName { get; set; }
 
         public int Kind { get; set; }
 
-        public String Debit { get; set; }
+        public string Debit { get; set; }
 
-        public String DebitKind { get; set; }
+        public string DebitKind { get; set; }
 
-        public String Credit { get; set; }
+        public string Credit { get; set; }
 
-        public String CreditKind { get; set; }
+        public string CreditKind { get; set; }
 
-        public String Remark { get; set; }
+        public string Remark { get; set; }
 
-        public bool IsTotal { get; set; }
+        public string SubDebit { get; set; }
+
+        public string SubDebitKind { get; set; }
+
+        public string SubCredit { get; set; }
+
+        public string SubCreditKind { get; set; }
+
+        public string SubRemark { get; set; }
 
         public DateTime ValidStartDate { get; set; }
 
@@ -39,5 +47,8 @@ namespace wpfHouseholdAccounts.summary
         public int SortOrder { get; set; }
 
         public long Total { get; set; }
+
+        public long SubTotal { get; set; }
+
     }
 }

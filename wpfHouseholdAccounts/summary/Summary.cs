@@ -26,7 +26,7 @@ namespace wpfHouseholdAccounts
             string SelectCommand = "";
 
             SelectCommand = "SELECT ID, NAME, PARENT_NAME, KIND, DEBIT, DEBIT_KIND, CREDIT, CREDIT_KIND, REMARK ";
-            SelectCommand += "    ,SUB_DEBIT, SUB_DEBIT_KIND, SUB_CREDIT, SUB_CREDIT_KIND, SUB_REMARK, IS_TOTAL, VALID_START, VALID_END, SORT_ORDER ";
+            SelectCommand += "    ,SUB_DEBIT, SUB_DEBIT_KIND, SUB_CREDIT, SUB_CREDIT_KIND, SUB_REMARK, VALID_START, VALID_END, SORT_ORDER ";
             SelectCommand += "    ,CREATE_DATE, UPDATE_DATE ";
             SelectCommand += "  FROM SUMMARY_PARAMETER ";
             SelectCommand += "  ORDER BY SORT_ORDER ASC ";
@@ -68,9 +68,14 @@ namespace wpfHouseholdAccounts
                     summaryParameter.Credit = DbExportCommon.GetDbString(reader, 6);
                     summaryParameter.CreditKind = DbExportCommon.GetDbString(reader, 7);
                     summaryParameter.Remark = DbExportCommon.GetDbString(reader, 8);
-                    summaryParameter.SortOrder = DbExportCommon.GetDbInt(reader, 17);
-                    summaryParameter.CreateDate = DbExportCommon.GetDbDateTime(reader, 18);
-                    summaryParameter.UpdateDate = DbExportCommon.GetDbDateTime(reader, 19);
+                    summaryParameter.SubDebit = DbExportCommon.GetDbString(reader, 9);
+                    summaryParameter.SubDebitKind = DbExportCommon.GetDbString(reader, 10);
+                    summaryParameter.SubCredit = DbExportCommon.GetDbString(reader, 11);
+                    summaryParameter.SubCreditKind = DbExportCommon.GetDbString(reader, 12);
+                    summaryParameter.SubRemark = DbExportCommon.GetDbString(reader, 13);
+                    summaryParameter.SortOrder = DbExportCommon.GetDbInt(reader, 16);
+                    summaryParameter.CreateDate = DbExportCommon.GetDbDateTime(reader, 17);
+                    summaryParameter.UpdateDate = DbExportCommon.GetDbDateTime(reader, 18);
 
                     listSummaryParameter.Add(summaryParameter);
                     _logger.Trace("id [" + summaryParameter.Id + "]" + summaryParameter.Name);
@@ -79,6 +84,10 @@ namespace wpfHouseholdAccounts
                 {
                     _logger.Debug("SUMMARY_PARAMETER 未設定");
                 }
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex);
             }
             finally
             {
@@ -107,6 +116,9 @@ namespace wpfHouseholdAccounts
                         if (!IsParameterValid(summaryParameter))
                             continue;
 
+                        if (data.Kind != 1)
+                            continue;
+
                         if (MatchParameter(summaryParameter.Debit, data.DebitCode) == PARAM_NOT_MATCH)
                             continue;
 
@@ -120,13 +132,36 @@ namespace wpfHouseholdAccounts
                             continue;
 
                         summaryParameter.Total = summaryParameter.Total + data.Amount;
+                        //_logger.Debug(summaryParameter.Debit + " id [" + data.Id + "]" + data.DebitCode + " " + data.CreditCode + " " + data.Amount);
+
+                        if (IsSubParameterValid(summaryParameter))
+                        {
+                            if (MatchParameter(summaryParameter.SubDebit, data.DebitCode) == PARAM_NOT_MATCH)
+                                continue;
+
+                            if (MatchParameter(summaryParameter.SubDebitKind, account.getAccountKind(data.DebitCode)) == PARAM_NOT_MATCH)
+                                continue;
+
+                            if (MatchParameter(summaryParameter.SubCredit, data.CreditCode) == PARAM_NOT_MATCH)
+                                continue;
+
+                            if (MatchParameter(summaryParameter.SubCreditKind, account.getAccountKind(data.CreditCode)) == PARAM_NOT_MATCH)
+                                continue;
+
+                            summaryParameter.SubTotal = summaryParameter.SubTotal + data.Amount;
+                        }
                     }
                 }
             }
             foreach (SummaryParameter summaryParameter in listSummaryParameter)
             {
                 if (summaryParameter.Total > 0)
-                    _logger.Debug(summaryParameter.Name + " " + summaryParameter.Total);
+                {
+                    if (summaryParameter.SubTotal > 0)
+                        _logger.Debug(summaryParameter.Name + " " + summaryParameter.Total + " (" + summaryParameter.SubTotal + ")");
+                    else
+                        _logger.Debug(summaryParameter.Name + " " + summaryParameter.Total);
+                }
                 else
                 {
                     long total = 0;
@@ -151,6 +186,20 @@ namespace wpfHouseholdAccounts
                 && String.IsNullOrEmpty(mySummaryParameter.DebitKind)
                 && String.IsNullOrEmpty(mySummaryParameter.Credit)
                 && String.IsNullOrEmpty(mySummaryParameter.CreditKind))
+                return false;
+
+            return true;
+        }
+
+        public bool IsSubParameterValid(SummaryParameter mySummaryParameter)
+        {
+            if (mySummaryParameter == null)
+                return false;
+
+            if (String.IsNullOrEmpty(mySummaryParameter.SubDebit)
+                && String.IsNullOrEmpty(mySummaryParameter.SubDebitKind)
+                && String.IsNullOrEmpty(mySummaryParameter.SubCredit)
+                && String.IsNullOrEmpty(mySummaryParameter.SubCreditKind))
                 return false;
 
             return true;
