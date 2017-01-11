@@ -16,7 +16,8 @@ namespace wpfHouseholdAccounts
     {
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private List<SummaryParameter> listSummaryParameter;
+        public  List<SummaryParameter> listSummaryParameter;
+
         public void LoadFromDatabase()
         {
             listSummaryParameter = new List<SummaryParameter>();
