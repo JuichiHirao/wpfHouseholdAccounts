@@ -100,8 +100,8 @@ namespace wpfHouseholdAccounts
         {
             LoadFromDatabase();
 
-            ConditionFromDate = new DateTime(2016, 11, 30);
-            ConditionToDate = new DateTime(2016, 12, 27);
+            //ConditionFromDate = new DateTime(2016, 11, 30);
+            //ConditionToDate = new DateTime(2016, 12, 27);
 
             Account account = new Account();
 

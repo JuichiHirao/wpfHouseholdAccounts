@@ -3141,5 +3141,117 @@ namespace wpfHouseholdAccounts
             }
             dbcon.CommitTransaction();
         }
+
+        private void dgridSelectDate_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ConditionFromDate = Convert.ToDateTime(dispctrlMakeupScopeDate[0]);
+            ConditionToDate = Convert.ToDateTime(dispctrlMakeupScopeDate[1]);
+
+            lborderSetMakeupScopeDate.Visibility = System.Windows.Visibility.Hidden;
+
+            DateTime selDt = (DateTime)dgridSelectDate.SelectedItem;
+            DateTime beforeDt = new DateTime(1900, 1, 1);
+            foreach (DateTime dt in listMakeupScopeDate)
+            {
+                if (selDt.CompareTo(dt) == 0)
+                    break;
+
+                beforeDt = dt.AddDays(-1);
+            }
+
+            // 一番先頭の場合はTO日付には1ヶ月後を設定
+            if (beforeDt.Year == 1900)
+                beforeDt = selDt.AddMonths(1);
+
+            txtbMakeScopeDate.Text = selDt.ToString("yyyy/MM/dd") + "～" + beforeDt.ToString("yyyy/MM/dd");
+
+            //SetDataSetMakeup();
+            lgridSummary.Children.Clear();
+            lgridSummary.RowDefinitions.Clear();
+
+            Summary summary = new Summary(selDt, beforeDt, listInputDataDetail);
+
+            lgridSummary.RowDefinitions.Add(new RowDefinition());
+            int cnt = 0;
+            foreach (SummaryParameter summaryParameter in summary.listSummaryParameter)
+            {
+                if (summaryParameter.Total > 0)
+                {
+                    if (summaryParameter.SubTotal > 0)
+                    {
+                        RowDefinition row = new RowDefinition();
+                        row.Height = new GridLength(30);
+                        lgridSummary.RowDefinitions.Add(row);
+
+                        TextBlock txtbTitle = new TextBlock();
+                        txtbTitle.Text = summaryParameter.Name;
+                        txtbTitle.SetValue(Grid.ColumnProperty, 0);
+                        txtbTitle.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtbTitle);
+
+                        TextBox txtAmount = new TextBox();
+                        txtAmount.Text = String.Format("{0:##,###,##0} ({1:##,###,##0})", summaryParameter.Total, summaryParameter.SubTotal);
+                        txtAmount.SetValue(Grid.ColumnProperty, 1);
+                        txtAmount.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtAmount);
+
+                        cnt++;
+                    }
+                    else
+                    {
+                        //summaryText += summaryParameter.Name + " " + summaryParameter.Total + "\n";
+                        RowDefinition row = new RowDefinition();
+                        row.Height = new GridLength(30);
+                        lgridSummary.RowDefinitions.Add(row);
+
+                        TextBlock txtbTitle = new TextBlock();
+                        txtbTitle.Text = summaryParameter.Name;
+                        txtbTitle.SetValue(Grid.ColumnProperty, 0);
+                        txtbTitle.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtbTitle);
+
+                        TextBox txtAmount = new TextBox();
+                        txtAmount.Text = String.Format("{0:##,###,##0}", summaryParameter.Total);
+                        txtAmount.SetValue(Grid.ColumnProperty, 1);
+                        txtAmount.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtAmount);
+
+                        cnt++;
+                    }
+                }
+                else
+                {
+                    long total = 0;
+                    foreach (SummaryParameter subSummaryParameter in summary.listSummaryParameter)
+                    {
+                        if (summaryParameter.Name.Equals(subSummaryParameter.ParentName))
+                            total += subSummaryParameter.Total;
+                    }
+
+                    if (total > 0)
+                    {
+                        //summaryText += summaryParameter.Name + " " + total + "\n";
+                        RowDefinition row = new RowDefinition();
+                        row.Height = new GridLength(30);
+                        lgridSummary.RowDefinitions.Add(row);
+
+                        TextBlock txtbTitle = new TextBlock();
+                        txtbTitle.Text = summaryParameter.Name;
+                        txtbTitle.SetValue(Grid.ColumnProperty, 0);
+                        txtbTitle.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtbTitle);
+
+                        TextBox txtAmount = new TextBox();
+                        txtAmount.Text = String.Format("{0:##,###,##0}", summaryParameter.Total);
+                        txtAmount.SetValue(Grid.ColumnProperty, 1);
+                        txtAmount.SetValue(Grid.RowProperty, cnt);
+                        lgridSummary.Children.Add(txtAmount);
+
+                        cnt++;
+                    }
+                }
+            }
+
+        }
     }
 }
