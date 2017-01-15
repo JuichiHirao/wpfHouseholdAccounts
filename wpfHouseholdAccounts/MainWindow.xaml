@@ -166,39 +166,18 @@
                             DisplayMemberPath="@DisplayName" Grid.Column="1" SelectionChanged="cmbMakeupTarget_SelectionChanged" />
                 </StackPanel>
             </Grid>
-            <DataGrid Name="dgridMakeupMain" AutoGenerateColumns="False"
-                      HorizontalAlignment="Left" Margin="5,0,5,5" VerticalAlignment="Top"
-                      IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
-                      Grid.Row="2" MouseDoubleClick="dgridMakeupMain_MouseDoubleClick">
-                <DataGrid.RowStyle>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Setter Property="FontSize" Value="{Binding Path=FontSize}" />
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="上位科目">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=AccountUpperCode}" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="科目名">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=DisplayCodeName}" Width="120" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="金額">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=Amount, StringFormat='###,###,##0'}" Width="100" TextAlignment="Right" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                
+            </Grid>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="2">
+                <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="250" />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </ScrollViewer>
             <Grid Name="lgridMoneyInputDetail" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" SizeChanged="lgridMoneyInputDetail_SizeChanged">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60" />
@@ -654,20 +633,6 @@
                     <!--<TextBlock Name="txtbCsvOutScopeDate" Text="2014/02/13～2014/3/01" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,0,0,0" />-->
                     <Button Name="btnCsvOutExecute" Content="出力実行" Margin="15,5,15,5" Grid.Row="2" Click="btnCsvOutExecute_Click" />
                 </Grid>
-            </Border>
-            <Border Name="lborderSummary" BorderBrush="CornflowerBlue" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,40,0,0" Background="AliceBlue" CornerRadius="10" Grid.ColumnSpan="2" Grid.RowSpan="3">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                    <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                    </Grid>
-                </ScrollViewer>
             </Border>
         </Grid>
     </DockPanel>

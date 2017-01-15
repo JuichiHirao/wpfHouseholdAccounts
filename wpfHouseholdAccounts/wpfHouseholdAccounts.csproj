@@ -104,6 +104,7 @@
     <Compile Include="summary\Summary.cs" />
     <Compile Include="clsTravel.cs" />
     <Compile Include="summary\SummaryParameter.cs" />
+    <Compile Include="summary\SummaryUi.cs" />
     <Compile Include="winAfterwordsPayment.xaml.cs">
       <DependentUpon>winAfterwordsPayment.xaml</DependentUpon>
     </Compile>

@@ -136,8 +136,6 @@ namespace wpfHouseholdAccounts
 
             SetConditionDate();
 
-            SetDataSetMakeup();
-
             // 支払確定基準日の取得、設定
             Environment env = new Environment();
             DateTime BaseDate;
@@ -173,7 +171,6 @@ namespace wpfHouseholdAccounts
             dispctrlDataGridRefreshMakeupDetail = true;
             SwitchLayout(0);
 
-
             // 金銭帳入力データの取得
             // 表示データの設定
             listInputDataDetail = MoneyInput.GetInputDetailAll(dbcon);
@@ -182,7 +179,8 @@ namespace wpfHouseholdAccounts
             ColViewListInputDataDetail = CollectionViewSource.GetDefaultView(listInputDataDetail);
             dispctrlDataGridRefreshMakeupDetail = false;
 
-            MakeSummary(ConditionFromDate, ConditionToDate);
+            lgridSummary.Visibility = Visibility.Visible;
+            SetDataSetMakeup();
         }
 
         /// <summary>
@@ -716,12 +714,12 @@ namespace wpfHouseholdAccounts
             if (myMode != LAYOUTMODE_SEARCH)
             {
                 lgridMakeupControl.Visibility = System.Windows.Visibility.Visible;
-                dgridMakeupMain.Visibility = System.Windows.Visibility.Visible;
+                lgridSummary.Visibility = System.Windows.Visibility.Visible;
             }
             else
             {
                 lgridMakeupControl.Visibility = System.Windows.Visibility.Hidden;
-                dgridMakeupMain.Visibility = System.Windows.Visibility.Hidden;
+                lgridSummary.Visibility = System.Windows.Visibility.Hidden;
             }
 
             if (myMode == LAYOUTMODE_DEFAULT)
@@ -904,16 +902,7 @@ namespace wpfHouseholdAccounts
             if (account == null)
                 return;
 
-            if (dispinfoMakeupWayKind == MAKEUPWAY_KIND_SZE)
-                SetDataSetMakeupSze();
-            else if (dispinfoMakeupWayKind == MAKEUPWAY_KIND_CARD)
-                SetDataSetMakeupCard();
-            else if (dispinfoMakeupWayKind == MAKEUPWAY_KIND_CASH)
-                SetDataSetMakeupCash();
-            else if (dispinfoMakeupWayKind == MAKEUPWAY_KIND_ARREAR)
-                SetDataSetMakeupCreditFilter();
-            else
-                SetDataSetMakeupAll();
+            MakeSummary(ConditionFromDate, ConditionToDate);
 
             txtbTermDate.Text = ConditionFromDate.ToString("yyyy/MM/dd") + " ～ " + ConditionToDate.ToString("yyyy/MM/dd");
         }
@@ -949,361 +938,6 @@ namespace wpfHouseholdAccounts
             }
 
             return result + "</NoTargets>";
-        }
-        public void SetDataSetMakeupAll()
-        {
-            try
-            {
-                dgridMakeupMain.ItemsSource = null;
-                listMakeup.Clear();
-
-                // 合計額のクリア
-                TotalNoTargetMakeup = 0;
-                TotalProfit = TotalExpense = TotalSaving = TotalBadget = TotalNoTarget = TotalNoTargetMakeup;
-
-                TotalUseBudget = MakeupCalcurate.GetUseBudget(dbcon, ConditionFromDate, ConditionToDate);
-
-                string[] arrNoTargets = new string[2];
-                arrNoTargets[0] = Account.KIND_ASSETS_BUDGET; // "15" 予算
-                arrNoTargets[1] = Account.KIND_DEPT_LOAN;     // "20" 借入（クレジットカード）
-                string xmlNoTargets = GetXmlNoTarget(arrNoTargets);
-
-                string[] arrNoTargets2 = new string[3];
-                arrNoTargets2[0] = Account.KIND_ASSETS_BUDGET;  // "15" 予算
-                arrNoTargets2[1] = Account.KIND_DEPT_LOAN;      // "20" 借入（クレジットカード）
-                arrNoTargets2[2] = Account.KIND_TRAVEL;         // "70" 旅行
-                string xmlNoTargets2 = GetXmlNoTarget(arrNoTargets2);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_PROFIT
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 2);
-                AddCalcrateTotal(TotalUseBudget, "収益合計", Account.KIND_PROFIT);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FLOATING
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                //AddListMakeupData(ConditionFromDate, ConditionToDate
-                //                    , Account.KIND_EXPENSE_FLOATING
-                //                    , arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "40 生活流動", Account.KIND_EXPENSE_FLOATING);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FIXED
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "41 年間固定", Account.KIND_EXPENSE_FIXED);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CHILD
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "42 子供", Account.KIND_EXPENSE_CHILD);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_LARGE
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "43 大きい出費", Account.KIND_EXPENSE_LARGE);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CULTURE
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "44 教養・旅行", Account.KIND_EXPENSE_CULTURE);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_BUSINESS
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "50 仕事・IT関係", Account.KIND_EXPENSE_BUSINESS);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_INTERESTED
-                                    , xmlNoTargets2, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "60 趣味", Account.KIND_EXPENSE_INTERESTED);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                    , Account.KIND_TRAVEL
-                    , xmlNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "70 旅行", Account.KIND_TRAVEL);
-
-                AddListRowData("費用合計", "", "", TotalExpense);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_ASSETS_SAVINGS
-                                    , xmlNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "貯蓄合計", Account.KIND_ASSETS_SAVINGS);
-
-                AddListMakeupData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_ASSETS_BUDGET
-                                    , xmlNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "予算合計", Account.KIND_ASSETS_BUDGET);
-
-                // 対象外の合計金額算出
-                TotalNoTarget = MakeupCalcurate.GetNoTarget(dbcon, ConditionFromDate, ConditionToDate);
-
-                // 対象外で今月分に集計する金額を算出
-                TotalNoTargetMakeup = MakeupCalcurate.GetNoTargetMakeup(dbcon, ConditionFromDate, ConditionToDate);
-
-                // 対象外合計の行を追加
-                AddListRowData("対象外合計", "", "", TotalNoTarget);
-
-                // 対象外合計合算の行を追加
-                AddListRowData("対象外合計合算", "", "", TotalNoTargetMakeup);
-
-                long lngTotalAmount;
-
-                lngTotalAmount = TotalProfit - (TotalExpense + TotalSaving + TotalBadget - TotalNoTarget) - TotalNoTargetMakeup;
-
-                // 合計の行を追加
-                AddListRowData("総合計", "", "", lngTotalAmount);
-
-                dgridMakeupMain.ItemsSource = listMakeup;
-
-                SetViewMakeupFilterAndSort();
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex);
-            }
-
-            return;
-        }
-
-        public void SetDataSetMakeupSze()
-        {
-            try
-            {
-                // 合計額のクリア
-                TotalNoTargetMakeup = 0;
-                TotalProfit = TotalExpense = TotalSaving = TotalBadget = TotalNoTarget = TotalNoTargetMakeup;
-
-                dgridMakeupMain.ItemsSource = null;
-                listMakeup.Clear();
-
-                //SetConditionDate();
-
-                string[] arrNoTargets = new string[2];
-                arrNoTargets[0] = Account.KIND_ASSETS_BUDGET; // "15" 予算
-                arrNoTargets[1] = Account.KIND_DEPT_LOAN;     // "20" 借入（クレジットカード）
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_PROFIT
-                                    , arrNoTargets, dispinfoMakeupWayUnionKind, 2);
-                AddCalcrateTotal(TotalUseBudget, "収益合計", Account.KIND_PROFIT);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FLOATING, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "40 生活流動", Account.KIND_EXPENSE_FLOATING);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FIXED, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "41 年間固定", Account.KIND_EXPENSE_FIXED);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CHILD, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "42 子供", Account.KIND_EXPENSE_CHILD);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_LARGE, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "43 大きい出費", Account.KIND_EXPENSE_LARGE);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CULTURE, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "44 教養・旅行", Account.KIND_EXPENSE_CULTURE);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_BUSINESS, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "50 仕事・IT関係", Account.KIND_EXPENSE_BUSINESS);
-
-                AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_INTERESTED, arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                AddCalcrateTotal(TotalUseBudget, "60 趣味", Account.KIND_EXPENSE_INTERESTED);
-
-
-                //AddListMakeupSzeData(ConditionFromDate, ConditionToDate
-                //                    , Account.KIND_EXPENSE
-                //                    , arrNoTargets, dispinfoMakeupWayUnionKind, 1);
-                //AddCalcrateTotal(TotalUseBudget, "費用合計", Account.KIND_EXPENSE);
-
-                long lngTotalAmount;
-
-                lngTotalAmount = TotalProfit - (TotalExpense + TotalSaving + TotalBadget - TotalNoTarget) - TotalNoTargetMakeup;
-
-                // 合計の行を追加
-                AddListRowData("総合計", "", "", lngTotalAmount);
-
-                dgridMakeupMain.ItemsSource = listMakeup;
-
-                SetViewMakeupFilterAndSort();
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex);
-            }
-
-            return;
-        }
-
-        public void SetDataSetMakeupCreditFilter()
-        {
-            try
-            {
-                dgridMakeupMain.ItemsSource = null;
-                listMakeup.Clear();
-
-                SetConditionDate();
-
-                string[] arrNoTargets = new string[2];
-                arrNoTargets[0] = Account.KIND_ASSETS_BUDGET; // "15" 予算
-                arrNoTargets[1] = Account.KIND_DEPT_LOAN;     // "20" 借入（クレジットカード）
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE, Account.KIND_DEPT_APPEAR
-                                    , dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "費用合計", Account.KIND_EXPENSE);
-
-                long lngTotalAmount;
-
-                lngTotalAmount = TotalExpense;
-
-                // 合計の行を追加
-                AddListRowData("総合計", "", "", lngTotalAmount);
-
-                dgridMakeupMain.ItemsSource = listMakeup;
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex);
-            }
-
-            return;
-        }
-
-        public void SetDataSetMakeupCard()
-        {
-            try
-            {
-                dgridMakeupMain.ItemsSource = null;
-                listMakeup.Clear();
-
-                // 合計額のクリア
-                TotalNoTargetMakeup = 0;
-                TotalProfit = TotalExpense = TotalSaving = TotalBadget = TotalNoTarget = TotalNoTargetMakeup;
-
-                string[] arrNoTargets = new string[2];
-                arrNoTargets[0] = Account.KIND_ASSETS_BUDGET; // "15" 予算
-                arrNoTargets[1] = Account.KIND_DEPT_LOAN;     // "20" 借入（クレジットカード）
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FLOATING, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "40 生活流動", Account.KIND_EXPENSE_FLOATING);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FIXED, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "41 年間固定", Account.KIND_EXPENSE_FIXED);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CHILD, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "42 子供", Account.KIND_EXPENSE_CHILD);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_LARGE, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "43 大きい出費", Account.KIND_EXPENSE_LARGE);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CULTURE, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "44 教養・旅行", Account.KIND_EXPENSE_CULTURE);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_BUSINESS, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "50 仕事・IT関係", Account.KIND_EXPENSE_BUSINESS);
-
-                AddListMakeupDataCard(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_INTERESTED, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "60 趣味", Account.KIND_EXPENSE_INTERESTED);
-
-                long lngTotalAmount = 0;
-
-                foreach (MakeupData data in listMakeup)
-                {
-                    // 金額を合計にインクリメント
-                    Regex regex = new Regex("^[0-9][0-9] .*");
-
-                    if (regex.Match(data.AccountUpperCode).Success)
-                        lngTotalAmount += data.Amount;
-                }
-
-                // 合計の行を追加
-                AddListRowData("総合計", "", "", lngTotalAmount);
-
-                dgridMakeupMain.ItemsSource = listMakeup;
-
-                SetViewMakeupFilterAndSort();
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex);
-            }
-
-            return;
-        }
-
-        public void SetDataSetMakeupCash()
-        {
-            try
-            {
-                dgridMakeupMain.ItemsSource = null;
-                listMakeup.Clear();
-
-                // 合計額のクリア
-                TotalNoTargetMakeup = 0;
-                TotalProfit = TotalExpense = TotalSaving = TotalBadget = TotalNoTarget = TotalNoTargetMakeup;
-
-                string[] arrNoTargets = new string[2];
-                arrNoTargets[0] = Account.KIND_ASSETS_BUDGET; // "15" 予算
-                arrNoTargets[1] = Account.KIND_DEPT_LOAN;     // "20" 借入（クレジットカード）
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FLOATING, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "40 生活流動", Account.KIND_EXPENSE_FLOATING);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_FIXED, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "41 年間固定", Account.KIND_EXPENSE_FIXED);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CHILD, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "42 子供", Account.KIND_EXPENSE_CHILD);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_LARGE, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "43 大きい出費", Account.KIND_EXPENSE_LARGE);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_CULTURE, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "44 教養・旅行", Account.KIND_EXPENSE_CULTURE);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_BUSINESS, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "50 仕事・IT関係", Account.KIND_EXPENSE_BUSINESS);
-
-                AddListMakeupDataCreditFilter(ConditionFromDate, ConditionToDate
-                                    , Account.KIND_EXPENSE_INTERESTED, Account.KIND_ASSETS_CASH, dispinfoMakeupWayUnionKind);
-                AddCalcrateTotal(TotalUseBudget, "60 趣味", Account.KIND_EXPENSE_INTERESTED);
-
-                long lngTotalAmount;
-
-                lngTotalAmount = TotalExpense;
-
-                // 合計の行を追加
-                AddListRowData("総合計", "", "", lngTotalAmount);
-
-                dgridMakeupMain.ItemsSource = listMakeup;
-
-                SetViewMakeupFilterAndSort();
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex);
-            }
-
-            return;
         }
 
         private void AddListRowData(string myAccountUpperCode, string myAccountCode, string myAccountName, long myAmount)
@@ -1603,37 +1237,6 @@ namespace wpfHouseholdAccounts
             SetSaralyDate();
 
             SetDataSetMakeup();
-        }
-
-        private void dgridMakeupMain_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                // 既に行の編集・削除操作がされている場合は注意を促す
-                if (btnDetailUpdate.Visibility == Visibility.Visible && btnDetailUpdate.IsEnabled)
-                {
-                    //MessageBoxResult res = MessageBox.Show(this, "各行へ行われた変更・削除した内容がクリアされますが宜しいですか？", "クリア確認", MessageBoxButton.OKCancel);
-
-                    //if (res == MessageBoxResult.Cancel)
-                    //{
-                    //    return;
-                    //}
-                }
-                dispinfoSelectDataGridMakeupMainData = (MakeupData)dgridMakeupMain.SelectedItem;
-
-                // dgridMakeupDetailと各ボタンを表示
-                dispctrlMakeupDetailMode = MAKEUPDETAIL_MODE_MAKEUPDETAIL;
-                SwitchLayout(LAYOUTMODE_MONEYINPUTDETAIL);
-
-                return;
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorException("画面のエラー", ex);
-                Debug.Print(ex.Message);
-                Debug.Print(ex.StackTrace);
-            }
-
         }
 
         private void dgridMakeupDetail_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -3084,6 +2687,7 @@ namespace wpfHouseholdAccounts
                 beforeDt = selDt.AddMonths(1);
 
             txtbMakeScopeDate.Text = selDt.ToString("yyyy/MM/dd") + "～" + beforeDt.ToString("yyyy/MM/dd");
+            txtbTermDate.Text = selDt.ToString("yyyy/MM/dd") + "～" + beforeDt.ToString("yyyy/MM/dd");
 
             MakeSummary(selDt, beforeDt);
         }
@@ -3094,18 +2698,6 @@ namespace wpfHouseholdAccounts
             lgridSummary.RowDefinitions.Clear();
 
             RowDefinition rowHeader = new RowDefinition();
-            rowHeader.Height = new GridLength(30);
-            lgridSummary.RowDefinitions.Add(rowHeader);
-
-            TextBlock textblock = new TextBlock();
-
-            textblock.Text = myFrom.ToString("yyyy/MM/dd") + "～" + myTo.ToString("yyyy/MM/dd");
-            textblock.SetValue(Grid.ColumnProperty, 0);
-            textblock.SetValue(Grid.ColumnSpanProperty, 6);
-            textblock.FontSize = 24;
-            textblock.SetValue(Grid.RowProperty, 0);
-
-            lgridSummary.Children.Add(textblock);
 
             Summary summary = new Summary(myFrom, myTo, listInputDataDetail);
 
@@ -3121,10 +2713,10 @@ namespace wpfHouseholdAccounts
                         row.Height = new GridLength(30);
                         lgridSummary.RowDefinitions.Add(row);
 
-                        lgridSummary.Children.Add(GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
+                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
 
-                        lgridSummary.Children.Add(GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
-                        lgridSummary.Children.Add(GetAmountTextBlock(summaryParameter.Kind, summaryParameter.SubTotal, cnt, true));
+                        lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
+                        lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.SubTotal, cnt, true));
 
                         cnt++;
                     }
@@ -3135,9 +2727,9 @@ namespace wpfHouseholdAccounts
                         row.Height = new GridLength(30);
                         lgridSummary.RowDefinitions.Add(row);
 
-                        lgridSummary.Children.Add(GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
+                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
 
-                        lgridSummary.Children.Add(GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
+                        lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
 
                         cnt++;
                     }
@@ -3148,13 +2740,13 @@ namespace wpfHouseholdAccounts
                         || summaryParameter.Kind == 2)
                     {
                         RowDefinition row = new RowDefinition();
-                        row.Height = new GridLength(30);
+                        row.Height = new GridLength(40);
                         lgridSummary.RowDefinitions.Add(row);
 
-                        lgridSummary.Children.Add(GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
+                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
 
                         if (summaryParameter.Total > 0)
-                            lgridSummary.Children.Add(GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
+                            lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
 
                         cnt++;
                     }
@@ -3174,100 +2766,15 @@ namespace wpfHouseholdAccounts
                             row.Height = new GridLength(30);
                             lgridSummary.RowDefinitions.Add(row);
 
-                            lgridSummary.Children.Add(GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
+                            lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
 
-                            lgridSummary.Children.Add(GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
+                            lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
 
                             cnt++;
                         }
                     }
                 }
             }
-        }
-
-        private TextBlock GetCaptionTextBlock(int myKind, string myText, int myRow)
-        {
-            TextBlock textblock = new TextBlock();
-
-            textblock.Text = myText;
-
-            if (myKind == 1)
-            {
-                textblock.SetValue(Grid.ColumnProperty, 0);
-                //textblock.SetValue(Grid.ColumnSpanProperty, 3);
-                textblock.FontSize = 24;
-            }
-            else if (myKind == 2)
-            {
-                textblock.SetValue(Grid.ColumnProperty, 0);
-                //textblock.SetValue(Grid.ColumnSpanProperty, 3);
-                textblock.FontSize = 18;
-            }
-            else if (myKind == 3)
-            {
-                textblock.SetValue(Grid.ColumnProperty, 1);
-                //textblock.SetValue(Grid.ColumnSpanProperty, 3);
-                textblock.FontSize = 12;
-            }
-            else if (myKind == 4)
-            {
-                textblock.SetValue(Grid.ColumnProperty, 1);
-                //textblock.SetValue(Grid.ColumnSpanProperty, 3);
-                textblock.FontSize = 12;
-            }
-            textblock.SetValue(Grid.RowProperty, myRow);
-
-            return textblock;
-        }
-        private TextBlock GetAmountTextBlock(int myKind, long myAmount, int myRow, bool myIsSub)
-        {
-            TextBlock textblock = new TextBlock();
-
-            if (myKind == 1)
-            {
-                textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                textblock.SetValue(Grid.ColumnProperty, 4);
-                textblock.FontSize = 24;
-            }
-            else if (myKind == 2)
-            {
-                textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                textblock.SetValue(Grid.ColumnProperty, 4);
-                textblock.FontSize = 18;
-            }
-            else if (myKind == 3)
-            {
-                if (myIsSub)
-                {
-                    textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
-                    textblock.SetValue(Grid.ColumnProperty, 5);
-                }
-                else
-                {
-                    textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                    textblock.SetValue(Grid.ColumnProperty, 3);
-                }
-
-                textblock.FontSize = 12;
-            }
-            else if (myKind == 4)
-            {
-                if (myIsSub)
-                {
-                    textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
-                    textblock.SetValue(Grid.ColumnProperty, 5);
-                }
-                else
-                {
-                    textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                    textblock.SetValue(Grid.ColumnProperty, 3);
-                }
-
-                textblock.FontSize = 12;
-            }
-            textblock.SetValue(Grid.RowProperty, myRow);
-
-            return textblock;
         }
     }
 }
