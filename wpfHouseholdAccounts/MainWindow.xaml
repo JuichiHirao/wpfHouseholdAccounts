@@ -655,27 +655,17 @@
                     <Button Name="btnCsvOutExecute" Content="出力実行" Margin="15,5,15,5" Grid.Row="2" Click="btnCsvOutExecute_Click" />
                 </Grid>
             </Border>
-            <Border Name="lborderSummary" BorderBrush="CornflowerBlue" BorderThickness="1" Width="800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,40,0,0" Background="AliceBlue" CornerRadius="10" Grid.ColumnSpan="2" Grid.RowSpan="3">
+            <Border Name="lborderSummary" BorderBrush="CornflowerBlue" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,40,0,0" Background="AliceBlue" CornerRadius="10" Grid.ColumnSpan="2" Grid.RowSpan="3">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
                     <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <Grid.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Margin" Value="5,0,10,0" />
-                                <Setter Property="HorizontalAlignment" Value="Right" />
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="FontSize" Value="24" />
-                            </Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Height" Value="50" />
-                                <Setter Property="Margin" Value="1,1,1,1" />
-                                <Setter Property="FontSize" Value="18" />
-                            </Style>
-                        </Grid.Resources>
-                        <Border BorderBrush="Black" BorderThickness="1" Name="lgridSummaryBorder" Grid.Column="0"/>
                     </Grid>
                 </ScrollViewer>
             </Border>
