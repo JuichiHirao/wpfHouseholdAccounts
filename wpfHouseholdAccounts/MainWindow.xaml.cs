@@ -54,6 +54,7 @@ namespace wpfHouseholdAccounts
 
         private bool[] dispinfoMakeupDetailFilterButton = null;
         private double[] dispctrlArrDataGridColumnWidth = null;
+        private List<SummaryParameter> listSummaryParameter = null;
 
         private const int MAKEUPDETAIL_MODE_MAKEUPDETAIL = 1; // 集計からのダブルクリックによる詳細表示
         private const int MAKEUPDETAIL_MODE_ACCOUNTPAYMENT = 2; // 銀行口座の支払情報表示
@@ -89,7 +90,7 @@ namespace wpfHouseholdAccounts
         public const int GRIDCLM_JD_MAKEUPDATE = 7;		// 集計年月日
         public const int GRIDCLM_JD_REMARK = 8;		// 摘要
 
-        public const string TARGET_SALARY_CODE = "30101";	// 集計の期日対象となる給料日の科目コード
+        public const string TARGET_SALARY_CODE = "30401";	// 集計の期日対象となる給料日の科目コード
 
         //   戻るボタンに対応するための操作履歴
         private List<string> dispinfoListCtrlHistory;
@@ -288,7 +289,7 @@ namespace wpfHouseholdAccounts
 
                 if (dispctrlArrDataGridColumnWidth == null)
                 {
-                    dispctrlArrDataGridColumnWidth = new double[9];
+                    dispctrlArrDataGridColumnWidth = new double[dgridMakeupDetail.Columns.Count];
                     int idx = 0;
                     foreach (DataGridColumn col in dgridMakeupDetail.Columns)
                     {
@@ -699,6 +700,7 @@ namespace wpfHouseholdAccounts
         private const int LAYOUTMODE_MONEYINPUTDETAIL = 2;
         private const int LAYOUTMODE_SEARCH = 3;
         private const int LAYOUTMODE_SEARCHEXECUTE = 4;
+        private const int LAYOUTMODE_MAKEUP_TARGET_DETAIL = 5;
 
         public void SwitchLayout(int myMode)
         {
@@ -741,6 +743,29 @@ namespace wpfHouseholdAccounts
                 lgridMakeupDetailControl.Visibility = System.Windows.Visibility.Visible;
 
                 SetViewFilterAndSort();
+
+                foreach (DataGridColumn col in dgridMakeupDetail.Columns)
+                {
+                    string header = col.Header.ToString();
+                    if (header.Equals("借CD")
+                        || header.Equals("貸CD")
+                        || header.Equals("金額")
+                        || header.Equals("年月日"))
+                        col.IsReadOnly = false;
+                }
+            }
+            else
+            {
+                lgridMoneyInputDetail.Visibility = System.Windows.Visibility.Hidden;
+                dgridMakeupDetail.Visibility = System.Windows.Visibility.Hidden;
+                lgridMakeupDetailControl.Visibility = System.Windows.Visibility.Hidden;
+            }
+
+            if (myMode == LAYOUTMODE_MAKEUP_TARGET_DETAIL)
+            {
+                lgridMoneyInputDetail.Visibility = System.Windows.Visibility.Visible;
+                dgridMakeupDetail.Visibility = System.Windows.Visibility.Visible;
+                lgridMakeupDetailControl.Visibility = System.Windows.Visibility.Visible;
 
                 foreach (DataGridColumn col in dgridMakeupDetail.Columns)
                 {
@@ -2703,7 +2728,8 @@ namespace wpfHouseholdAccounts
 
             lgridSummary.RowDefinitions.Add(new RowDefinition());
             int cnt = 1;
-            foreach (SummaryParameter summaryParameter in summary.listSummaryParameter)
+            listSummaryParameter = summary.listSummaryParameter;
+            foreach (SummaryParameter summaryParameter in listSummaryParameter)
             {
                 if (summaryParameter.Total > 0)
                 {
@@ -2774,6 +2800,49 @@ namespace wpfHouseholdAccounts
                         }
                     }
                 }
+            }
+        }
+
+        private void lgridSummary_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TextBlock textblock = e.OriginalSource as TextBlock;
+
+            if (textblock == null)
+                return;
+
+            object obj = textblock.GetValue(Grid.ColumnProperty);
+            _logger.Debug(obj.ToString() + "  textblock.Text " + textblock.Text);
+
+            List<int> idList = null;
+            foreach (SummaryParameter param in listSummaryParameter)
+            {
+                if (param.Name.Equals(textblock.Text))
+                {
+                    idList = param.MatchId;
+                    break;
+                }
+            }
+            if (idList != null)
+            {
+                foreach (int id in idList)
+                    _logger.Debug(id);
+
+                ColViewListInputDataDetail.Filter = delegate (object o)
+                {
+                    MakeupDetailData data = o as MakeupDetailData;
+
+                    if (idList.Contains(data.Id))
+                        return true;
+
+                    return false;
+                };
+                ColViewListInputDataDetail.SortDescriptions.Clear();
+                ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Ascending));
+
+                dispctrlMakeupDetailMode = MAKEUPDETAIL_MODE_MAKEUPDETAIL;
+                SwitchLayout(LAYOUTMODE_MAKEUP_TARGET_DETAIL);
+
+                DataGridMakeupDetailWidthSetting();
             }
         }
     }

@@ -50,5 +50,6 @@ namespace wpfHouseholdAccounts.summary
 
         public long SubTotal { get; set; }
 
+        public List<int> MatchId { get; set; }
     }
 }

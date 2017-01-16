@@ -169,8 +169,8 @@
             <Grid>
                 
             </Grid>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="2">
-                <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="2" VerticalAlignment="Top">
+                <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True" Background="White" MouseDown="lgridSummary_MouseDown">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="250" />
                         <ColumnDefinition />
@@ -362,6 +362,7 @@
                 <Grid Name="lgridPaymentSchedule"  Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
+                        <RowDefinition />
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <TextBlock Name="txtbPaymentScheduleSelectAmount" Margin="15,0,0,2" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="18" />

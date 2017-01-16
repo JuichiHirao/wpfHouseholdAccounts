@@ -79,11 +79,11 @@ namespace wpfHouseholdAccounts
                     summaryParameter.UpdateDate = DbExportCommon.GetDbDateTime(reader, 18);
 
                     listSummaryParameter.Add(summaryParameter);
-                    _logger.Trace("id [" + summaryParameter.Id + "]" + summaryParameter.Name);
+                    //_logger.Trace("id [" + summaryParameter.Id + "]" + summaryParameter.Name);
                 }
                 if (listSummaryParameter != null && listSummaryParameter.Count <= 0)
                 {
-                    _logger.Debug("SUMMARY_PARAMETER 未設定");
+                    _logger.Error("SUMMARY_PARAMETER 未設定");
                 }
             }
             catch(Exception ex)
@@ -99,9 +99,6 @@ namespace wpfHouseholdAccounts
         public Summary(DateTime ConditionFromDate, DateTime ConditionToDate, List<MakeupDetailData> listInputDataDetail)
         {
             LoadFromDatabase();
-
-            //ConditionFromDate = new DateTime(2016, 11, 30);
-            //ConditionToDate = new DateTime(2016, 12, 27);
 
             Account account = new Account();
 
@@ -133,6 +130,9 @@ namespace wpfHouseholdAccounts
                             continue;
 
                         summaryParameter.Total = summaryParameter.Total + data.Amount;
+                        if (summaryParameter.MatchId == null)
+                            summaryParameter.MatchId = new List<int>();
+                        summaryParameter.MatchId.Add(data.Id);
                         //_logger.Debug(summaryParameter.Debit + " id [" + data.Id + "]" + data.DebitCode + " " + data.CreditCode + " " + data.Amount);
 
                         if (IsSubParameterValid(summaryParameter))
@@ -152,28 +152,6 @@ namespace wpfHouseholdAccounts
                             summaryParameter.SubTotal = summaryParameter.SubTotal + data.Amount;
                         }
                     }
-                }
-            }
-            foreach (SummaryParameter summaryParameter in listSummaryParameter)
-            {
-                if (summaryParameter.Total > 0)
-                {
-                    if (summaryParameter.SubTotal > 0)
-                        _logger.Debug(summaryParameter.Name + " " + summaryParameter.Total + " (" + summaryParameter.SubTotal + ")");
-                    else
-                        _logger.Debug(summaryParameter.Name + " " + summaryParameter.Total);
-                }
-                else
-                {
-                    long total = 0;
-                    foreach(SummaryParameter subSummaryParameter in listSummaryParameter)
-                    {
-                        if (summaryParameter.Name.Equals(subSummaryParameter.ParentName))
-                            total += subSummaryParameter.Total;
-                    }
-
-                    if (total > 0)
-                        _logger.Debug(summaryParameter.Name + " " + total);
                 }
             }
         }
