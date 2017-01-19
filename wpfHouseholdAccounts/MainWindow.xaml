@@ -182,6 +182,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60" />
                     <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
                 <Grid Name="lgridMakeupDetailControl">
                     <Button Content="◀" Name="btnMakeupDetailBack" Grid.Column="1" Height="25" Margin="5,0,0,5" Width="20" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="btnMakeupDetailBack_Click" />
@@ -198,9 +199,23 @@
                     <Button Content="追加" Name="btnDetailAdd" Grid.Column="1" Height="25" Margin="0,0,130,35" Width="80" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnDetailAdd_Click" />
                     <Button Content="削除" Name="btnDetailDelete" Grid.Column="1" Height="25" Margin="0,0,130,5" Width="80" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnDetailDelete_Click" />
                 </Grid>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="1" VerticalAlignment="Top">
+                    <Grid Name="lgridSummaryEveryAccount" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ScrollViewer>
                 <DataGrid Name="dgridMakeupDetail" AutoGenerateColumns="False" HorizontalAlignment="Left" Width="Auto" Margin="5,0,5,5" VerticalAlignment="Top" FontSize="12"
                 SelectionMode="Extended"  IsReadOnly="False" Visibility="Collapsed"
-                CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="1"
+                CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="2"
                 SizeChanged="dgridMakeupDetail_SizeChanged" BeginningEdit="dgridMakeupDetail_BeginningEdit" 
                 LostKeyboardFocus="dgridMakeupDetail_LostKeyboardFocus" PreviewKeyDown="dgridMakeupDetail_PreviewKeyDown" MouseDoubleClick="dgridMakeupDetail_MouseDoubleClick" SelectionChanged="dgridMakeupDetail_SelectionChanged" ContextMenuOpening="menuitemAddCompanyArrear_ContextMenuOpening" >
                     <DataGrid.ContextMenu>

@@ -10,7 +10,6 @@ namespace wpfHouseholdAccounts.summary
 {
     class SummaryUi
     {
-
         public static TextBlock GetCaptionTextBlock(int myKind, string myText, int myRow)
         {
             TextBlock textblock = new TextBlock();
@@ -103,4 +102,38 @@ namespace wpfHouseholdAccounts.summary
         }
 
     }
+
+    class SummaryEverryAccountUi
+    {
+        public static TextBlock GetCaptionTextBlock(string myText, int myColumn, int myRow)
+        {
+            TextBlock textblock = new TextBlock();
+
+            textblock.Text = myText;
+
+            textblock.SetValue(Grid.ColumnProperty, myColumn);
+            textblock.Margin = new Thickness(5, 5, 5, 5);
+            textblock.FontSize = 14;
+
+            textblock.SetValue(Grid.RowProperty, myRow);
+
+            return textblock;
+        }
+        public static TextBlock GetAmountTextBlock(long myAmount, int myColumn, int myRow)
+        {
+            TextBlock textblock = new TextBlock();
+
+            textblock.Text = String.Format("{0:##,###,##0}", myAmount);
+            textblock.SetValue(Grid.ColumnProperty, myColumn);
+            textblock.Margin = new Thickness(5, 5, 5, 5);
+            textblock.FontSize = 18;
+            textblock.HorizontalAlignment = HorizontalAlignment.Right;
+
+            textblock.SetValue(Grid.RowProperty, myRow);
+
+            return textblock;
+        }
+
+    }
+
 }

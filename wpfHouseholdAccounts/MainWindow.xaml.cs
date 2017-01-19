@@ -2824,25 +2824,76 @@ namespace wpfHouseholdAccounts
             }
             if (idList != null)
             {
+                string idListLog = "";
                 foreach (int id in idList)
-                    _logger.Debug(id);
+                    idListLog += id + ",";
+
+                _logger.Debug(idListLog);
 
                 ColViewListInputDataDetail.Filter = delegate (object o)
                 {
                     MakeupDetailData data = o as MakeupDetailData;
 
+                    if (data.Kind != 1)
+                        return false;
                     if (idList.Contains(data.Id))
                         return true;
 
                     return false;
                 };
+                //ソートするとlistDataの件数が増える
                 ColViewListInputDataDetail.SortDescriptions.Clear();
                 ColViewListInputDataDetail.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Ascending));
+
+                List<MakeupDetailData> listData = ColViewListInputDataDetail.Cast<MakeupDetailData>().ToList();
+                _logger.Debug("Match件数 [" + listData.Count + "]");
 
                 dispctrlMakeupDetailMode = MAKEUPDETAIL_MODE_MAKEUPDETAIL;
                 SwitchLayout(LAYOUTMODE_MAKEUP_TARGET_DETAIL);
 
                 DataGridMakeupDetailWidthSetting();
+
+                lgridSummaryEveryAccount.Children.Clear();
+                SummaryEveryAccount summaryEveryAccount = new SummaryEveryAccount(listData, account);
+
+                int cnt = 0;
+                int maxRow = (summaryEveryAccount.DebitCount > summaryEveryAccount.CreditCount) ? summaryEveryAccount.DebitCount : summaryEveryAccount.CreditCount;
+
+                for(cnt=0; cnt<maxRow; cnt++)
+                {
+                    RowDefinition row = new RowDefinition();
+                    row.Height = new GridLength(40);
+                    lgridSummaryEveryAccount.RowDefinitions.Add(row);
+                }
+
+                cnt = 0;
+                foreach (SummaryEveryAccountData data in summaryEveryAccount.ColViewData)
+                {
+                    if (data.Kind == 1)
+                    {
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetCaptionTextBlock(data.Code, 1, cnt));
+
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetCaptionTextBlock(data.Name, 2, cnt));
+
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetAmountTextBlock(data.Total, 3, cnt));
+
+                        cnt++;
+                    }
+                }
+                cnt = 0;
+                foreach (SummaryEveryAccountData data in summaryEveryAccount.ColViewData)
+                {
+                    if (data.Kind == 2)
+                    {
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetCaptionTextBlock(data.Code, 5, cnt));
+
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetCaptionTextBlock(data.Name, 6, cnt));
+
+                        lgridSummaryEveryAccount.Children.Add(SummaryEverryAccountUi.GetAmountTextBlock(data.Total, 7, cnt));
+
+                        cnt++;
+                    }
+                }
             }
         }
     }
