@@ -154,6 +154,41 @@ namespace wpfHouseholdAccounts
                     }
                 }
             }
+
+            List<ParentTotal> listParentTotal = new List<ParentTotal>();
+
+            ParentTotal parentTotal;
+            foreach (SummaryParameter data in listSummaryParameter)
+            {
+                if (String.IsNullOrEmpty(data.ParentName))
+                    continue;
+
+                parentTotal = listParentTotal.Find(x => (x.Name == data.ParentName));
+
+                if (parentTotal != null)
+                    parentTotal.Total += data.Total;
+                else
+                {
+                    parentTotal = new ParentTotal();
+                    parentTotal.Name = data.ParentName;
+                    parentTotal.Total = data.Total;
+                    listParentTotal.Add(parentTotal);
+                }
+            }
+
+            foreach (ParentTotal data in listParentTotal)
+            {
+                SummaryParameter summaryParameter = listSummaryParameter.Find(x => (x.Name == data.Name));
+
+                if (summaryParameter != null)
+                    summaryParameter.Total = data.Total;
+            }
+        }
+
+        class ParentTotal
+        {
+            public string Name { get; set; }
+            public long Total { get; set; }
         }
 
         public bool IsParameterValid(SummaryParameter mySummaryParameter)
@@ -200,25 +235,35 @@ namespace wpfHouseholdAccounts
             int notMatchCount = 0;
             foreach (string param in arrParam)
             {
-                if (param.IndexOf("*") >= 0 || param.IndexOf("?") >= 0)
+                if (param.IndexOf("!") == 0)
                 {
-                    isMatch = Regex.IsMatch(data, WildCardToRegular(param));
-                }
-                else if (param.IndexOf("!") == 0)
-                {
-                    if (param.Substring(1) != data)
+                    if (param.IndexOf("*") >= 0 || param.IndexOf("?") >= 0)
+                    {
+                        if (!Regex.IsMatch(data, WildCardToRegular(param.Substring(1))))
+                        {
+                            notMatchCount++;
+                            continue;
+                        }
+                    }
+                    else if (param.Substring(1) != data)
                     {
                         notMatchCount++;
                         continue;
                     }
-                    //summaryParameter.Total = summaryParameter.Total + data.Amount;
                 }
                 else
                 {
-                    if (param == data)
+                    if (param.IndexOf("*") >= 0 || param.IndexOf("?") >= 0)
                     {
-                        isMatch = true;
-                        break;
+                        isMatch = Regex.IsMatch(data, WildCardToRegular(param));
+                    }
+                    else
+                    {
+                        if (param == data)
+                        {
+                            isMatch = true;
+                            break;
+                        }
                     }
                 }
             }

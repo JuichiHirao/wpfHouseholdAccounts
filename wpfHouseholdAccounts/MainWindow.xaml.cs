@@ -2731,74 +2731,23 @@ namespace wpfHouseholdAccounts
             listSummaryParameter = summary.listSummaryParameter;
             foreach (SummaryParameter summaryParameter in listSummaryParameter)
             {
-                if (summaryParameter.Total > 0)
+                if (summaryParameter.Total > 0
+                    || summaryParameter.Kind == 1
+                    || summaryParameter.Kind == 2)
                 {
-                    if (summaryParameter.SubTotal > 0)
-                    {
-                        RowDefinition row = new RowDefinition();
-                        row.Height = new GridLength(30);
-                        lgridSummary.RowDefinitions.Add(row);
+                    RowDefinition row = new RowDefinition();
+                    row.Height = new GridLength(SummaryUi.GetGridLength(summaryParameter.Kind));
+                    lgridSummary.RowDefinitions.Add(row);
 
-                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
+                    lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
 
+                    if (summaryParameter.Total > 0)
                         lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
+
+                    if (summaryParameter.SubTotal > 0)
                         lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.SubTotal, cnt, true));
 
-                        cnt++;
-                    }
-                    else
-                    {
-                        //summaryText += summaryParameter.Name + " " + summaryParameter.Total + "\n";
-                        RowDefinition row = new RowDefinition();
-                        row.Height = new GridLength(30);
-                        lgridSummary.RowDefinitions.Add(row);
-
-                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
-
-                        lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
-
-                        cnt++;
-                    }
-                }
-                else
-                {
-                    if (summaryParameter.Kind == 1
-                        || summaryParameter.Kind == 2)
-                    {
-                        RowDefinition row = new RowDefinition();
-                        row.Height = new GridLength(40);
-                        lgridSummary.RowDefinitions.Add(row);
-
-                        lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
-
-                        if (summaryParameter.Total > 0)
-                            lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
-
-                        cnt++;
-                    }
-                    else
-                    {
-                        long total = 0;
-                        foreach (SummaryParameter subSummaryParameter in summary.listSummaryParameter)
-                        {
-                            if (summaryParameter.Name.Equals(subSummaryParameter.ParentName))
-                                total += subSummaryParameter.Total;
-                        }
-
-                        if (total > 0)
-                        {
-                            //summaryText += summaryParameter.Name + " " + total + "\n";
-                            RowDefinition row = new RowDefinition();
-                            row.Height = new GridLength(30);
-                            lgridSummary.RowDefinitions.Add(row);
-
-                            lgridSummary.Children.Add(SummaryUi.GetCaptionTextBlock(summaryParameter.Kind, summaryParameter.Name, cnt));
-
-                            lgridSummary.Children.Add(SummaryUi.GetAmountTextBlock(summaryParameter.Kind, summaryParameter.Total, cnt, false));
-
-                            cnt++;
-                        }
-                    }
+                    cnt++;
                 }
             }
         }
