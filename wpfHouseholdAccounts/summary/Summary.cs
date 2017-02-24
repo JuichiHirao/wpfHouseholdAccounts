@@ -158,35 +158,69 @@ namespace wpfHouseholdAccounts
             List<ParentTotal> listParentTotal = new List<ParentTotal>();
 
             ParentTotal parentTotal;
+            int idx = 0;
             foreach (SummaryParameter data in listSummaryParameter)
             {
                 if (String.IsNullOrEmpty(data.ParentName))
                     continue;
 
-                parentTotal = listParentTotal.Find(x => (x.Name == data.ParentName));
+                List<SummaryParameter> matchListParam = listSummaryParameter.FindAll(x => (x.Name == data.ParentName));
+                SummaryParameter findSummaryParameter = null;
+                if (matchListParam != null && matchListParam.Count > 1)
+                {
+                    foreach (SummaryParameter param in matchListParam)
+                    {
+                        if (param.SortOrder < data.SortOrder)
+                        {
+                            if (findSummaryParameter != null)
+                            {
+                                if (Math.Abs(data.SortOrder - findSummaryParameter.SortOrder) > Math.Abs(data.SortOrder - param.SortOrder))
+                                    findSummaryParameter = param;
+                            }
+                            else
+                                findSummaryParameter = param;
+                        }
+                    }
+                }
+                else
+                    findSummaryParameter = matchListParam[0];
+
+                if (findSummaryParameter == null)
+                {
+                    _logger.Debug("対象のSummaryParameterが見つかりません [" + data.ParentName + "]");
+                    continue;
+                }
+
+                parentTotal = listParentTotal.Find(x => (x.Name == findSummaryParameter.Name && x.SortOrder == findSummaryParameter.SortOrder));
+                //parentTotal = listParentTotal.Find(x => (x.Name == data.ParentName));
 
                 if (parentTotal != null)
                     parentTotal.Total += data.Total;
                 else
                 {
                     parentTotal = new ParentTotal();
-                    parentTotal.Name = data.ParentName;
+                    parentTotal.SortOrder = findSummaryParameter.SortOrder;
+                    parentTotal.Name = findSummaryParameter.Name;
                     parentTotal.Total = data.Total;
                     listParentTotal.Add(parentTotal);
                 }
+                idx++;
             }
 
             foreach (ParentTotal data in listParentTotal)
             {
-                SummaryParameter summaryParameter = listSummaryParameter.Find(x => (x.Name == data.Name));
+                SummaryParameter summaryParameter = listSummaryParameter.Find(x => (x.Name == data.Name && x.SortOrder == data.SortOrder));
 
                 if (summaryParameter != null)
                     summaryParameter.Total = data.Total;
+                else
+                    _logger.Debug("findできません [" + data.Name + "]   SortOrder [" + data.SortOrder + "] ");
             }
         }
 
         class ParentTotal
         {
+            public int SortOrder { get; set; }
             public string Name { get; set; }
             public long Total { get; set; }
         }
