@@ -45,10 +45,14 @@ namespace wpfHouseholdAccounts
                 return;
             }
 
+            int code;
+            Code = "70001";
             if (reader.Read())
-                Code = DbExportCommon.GetDbString(reader, 0);
-            else
-                Code = "70001";
+            {
+                code = Convert.ToInt32(DbExportCommon.GetDbString(reader, 0));
+                code++;
+                Code = Convert.ToString(code);
+            }
 
             reader.Close();
 
