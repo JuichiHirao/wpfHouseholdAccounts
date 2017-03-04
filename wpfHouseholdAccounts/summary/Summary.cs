@@ -27,7 +27,8 @@ namespace wpfHouseholdAccounts
             string SelectCommand = "";
 
             SelectCommand = "SELECT ID, NAME, PARENT_NAME, KIND, DEBIT, DEBIT_KIND, CREDIT, CREDIT_KIND, REMARK ";
-            SelectCommand += "    ,SUB_DEBIT, SUB_DEBIT_KIND, SUB_CREDIT, SUB_CREDIT_KIND, SUB_REMARK, VALID_START, VALID_END, SORT_ORDER ";
+            SelectCommand += "    ,SUB_DEBIT, SUB_DEBIT_KIND, SUB_CREDIT, SUB_CREDIT_KIND, SUB_REMARK ";
+            SelectCommand += "    ,IS_USED_COMPANY_ARREAR, VALID_START, VALID_END, SORT_ORDER ";
             SelectCommand += "    ,CREATE_DATE, UPDATE_DATE ";
             SelectCommand += "  FROM SUMMARY_PARAMETER ";
             SelectCommand += "  ORDER BY SORT_ORDER ASC ";
@@ -74,9 +75,10 @@ namespace wpfHouseholdAccounts
                     summaryParameter.SubCredit = DbExportCommon.GetDbString(reader, 11);
                     summaryParameter.SubCreditKind = DbExportCommon.GetDbString(reader, 12);
                     summaryParameter.SubRemark = DbExportCommon.GetDbString(reader, 13);
-                    summaryParameter.SortOrder = DbExportCommon.GetDbInt(reader, 16);
-                    summaryParameter.CreateDate = DbExportCommon.GetDbDateTime(reader, 17);
-                    summaryParameter.UpdateDate = DbExportCommon.GetDbDateTime(reader, 18);
+                    summaryParameter.IsUsedCompanyArrear = DbExportCommon.GetDbInt(reader, 14);
+                    summaryParameter.SortOrder = DbExportCommon.GetDbInt(reader, 17);
+                    summaryParameter.CreateDate = DbExportCommon.GetDbDateTime(reader, 18);
+                    summaryParameter.UpdateDate = DbExportCommon.GetDbDateTime(reader, 19);
 
                     listSummaryParameter.Add(summaryParameter);
                     //_logger.Trace("id [" + summaryParameter.Id + "]" + summaryParameter.Name);
@@ -104,12 +106,10 @@ namespace wpfHouseholdAccounts
 
             foreach(MakeupDetailData data in listInputDataDetail)
             {
-                if ((data.Date.CompareTo(ConditionFromDate) >= 0
-                    && data.Date.CompareTo(ConditionToDate) <= 0)
-                    || (data.RegistDate.CompareTo(ConditionFromDate) >= 0
-                    && data.RegistDate.CompareTo(ConditionToDate) <= 0))
+                if (data.Kind == 1
+                    &&(data.Date.CompareTo(ConditionFromDate) >= 0 && data.Date.CompareTo(ConditionToDate) <= 0))
                 {
-                    foreach(SummaryParameter summaryParameter in listSummaryParameter)
+                    foreach (SummaryParameter summaryParameter in listSummaryParameter)
                     {
                         if (!IsParameterValid(summaryParameter))
                             continue;
@@ -129,11 +129,20 @@ namespace wpfHouseholdAccounts
                         if (MatchParameter(summaryParameter.CreditKind, account.getAccountKind(data.CreditCode)) == PARAM_NOT_MATCH)
                             continue;
 
-                        summaryParameter.Total = summaryParameter.Total + data.Amount;
-                        if (summaryParameter.MatchId == null)
-                            summaryParameter.MatchId = new List<int>();
-                        summaryParameter.MatchId.Add(data.Id);
-                        //_logger.Debug(summaryParameter.Debit + " id [" + data.Id + "]" + data.DebitCode + " " + data.CreditCode + " " + data.Amount);
+                        if ((data.UsedCompanyArrear == 1 && data.UsedCompanyArrear == summaryParameter.IsUsedCompanyArrear)
+                            || (data.UsedCompanyArrear != 1 && summaryParameter.IsUsedCompanyArrear != 1))
+                        {
+                            summaryParameter.Total = summaryParameter.Total + data.Amount;
+                            if (summaryParameter.MatchId == null)
+                                summaryParameter.MatchId = new List<int>();
+                            summaryParameter.MatchId.Add(data.Id);
+                            //_logger.Debug(summaryParameter.Debit + " id [" + data.Id + "]" + data.DebitCode + " " + data.CreditCode + " " + data.Amount);
+
+                            if (summaryParameter.IsUsedCompanyArrear == 1)
+                                _logger.Debug("1");
+                        }
+                        else
+                            continue;
 
                         if (IsSubParameterValid(summaryParameter))
                         {
@@ -290,6 +299,8 @@ namespace wpfHouseholdAccounts
                     if (param.IndexOf("*") >= 0 || param.IndexOf("?") >= 0)
                     {
                         isMatch = Regex.IsMatch(data, WildCardToRegular(param));
+                        if (isMatch)
+                            return PARAM_MATCH;
                     }
                     else
                     {

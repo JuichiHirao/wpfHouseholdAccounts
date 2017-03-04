@@ -36,6 +36,8 @@ namespace wpfHouseholdAccounts.summary
 
         public string SubRemark { get; set; }
 
+        public int IsUsedCompanyArrear { get; set; }
+
         public DateTime ValidStartDate { get; set; }
 
         public DateTime ValidEndDate { get; set; }
