@@ -175,6 +175,8 @@
                         <ColumnDefinition MinWidth="250" />
                         <ColumnDefinition />
                         <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition MinWidth="10" />
                     </Grid.ColumnDefinitions>
                 </Grid>
             </ScrollViewer>

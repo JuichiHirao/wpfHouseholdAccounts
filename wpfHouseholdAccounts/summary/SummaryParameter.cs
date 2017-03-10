@@ -8,6 +8,11 @@ namespace wpfHouseholdAccounts.summary
 {
     class SummaryParameter
     {
+        public SummaryParameter()
+        {
+            IsSummaryCalcurate = false;
+        }
+
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -53,5 +58,8 @@ namespace wpfHouseholdAccounts.summary
         public long SubTotal { get; set; }
 
         public List<int> MatchId { get; set; }
+
+        // 再帰で既に計算が終了しているかのフラグ
+        public bool IsSummaryCalcurate { get; set; }
     }
 }

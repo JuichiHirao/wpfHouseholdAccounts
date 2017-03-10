@@ -66,7 +66,7 @@ namespace wpfHouseholdAccounts.summary
             else if (myKind == 2)
             {
                 textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                textblock.SetValue(Grid.ColumnProperty, 2);
+                textblock.SetValue(Grid.ColumnProperty, 3);
                 textblock.Margin = new Thickness(3, 3, 3, 3);
                 textblock.FontSize = 18;
             }
@@ -75,30 +75,31 @@ namespace wpfHouseholdAccounts.summary
                 if (myIsSub)
                 {
                     textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
+                    textblock.SetValue(Grid.ColumnProperty, 3);
                     textblock.Margin = new Thickness(3, 3, 23, 3);
-                    textblock.SetValue(Grid.ColumnProperty, 2);
                 }
                 else
                 {
                     textblock.Text = String.Format("{0:##,###,##0}", myAmount);
+                    textblock.SetValue(Grid.ColumnProperty, 2);
                     textblock.Margin = new Thickness(3, 3, 3, 3);
-                    textblock.SetValue(Grid.ColumnProperty, 1);
+                    textblock.FontWeight = FontWeights.Bold;
                 }
 
-                textblock.FontSize = 12;
+                textblock.FontSize = 14;
             }
             else if (myKind == 4)
             {
                 if (myIsSub)
                 {
                     textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
-                    textblock.Margin = new Thickness(3, 3, 3, 3);
+                    textblock.Margin = new Thickness(3, 3, 43, 3);
                     textblock.SetValue(Grid.ColumnProperty, 2);
                 }
                 else
                 {
                     textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                    textblock.Margin = new Thickness(3, 3, 3, 3);
+                    textblock.Margin = new Thickness(3, 3, 43, 3);
                     textblock.SetValue(Grid.ColumnProperty, 1);
                 }
 

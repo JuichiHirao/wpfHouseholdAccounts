@@ -166,8 +166,6 @@ namespace wpfHouseholdAccounts
 
             List<ParentTotal> listParentTotal = new List<ParentTotal>();
 
-            ParentTotal parentTotal;
-            int idx = 0;
             foreach (SummaryParameter data in listSummaryParameter)
             {
                 if (String.IsNullOrEmpty(data.ParentName))
@@ -200,31 +198,49 @@ namespace wpfHouseholdAccounts
                     continue;
                 }
 
-                parentTotal = listParentTotal.Find(x => (x.Name == findSummaryParameter.Name && x.SortOrder == findSummaryParameter.SortOrder));
-                //parentTotal = listParentTotal.Find(x => (x.Name == data.ParentName));
+                bool isMatch = false;
+                int rangeSortOrder = 0;
+                foreach (SummaryParameter subData in listSummaryParameter)
+                {
+                    if (isMatch)
+                    {
+                        if (subData.Kind <= findSummaryParameter.Kind)
+                            break;
+                        rangeSortOrder = subData.SortOrder;
+                    }
 
-                if (parentTotal != null)
-                    parentTotal.Total += data.Total;
+                    if (subData.SortOrder == findSummaryParameter.SortOrder)
+                        isMatch = true;
+                }
+
+                Calcurate(findSummaryParameter, rangeSortOrder);
+            }
+        }
+
+        public void Calcurate(SummaryParameter myParam, int myRangeSortOrder)
+        {
+            if (myParam.IsSummaryCalcurate)
+                return;
+
+            List<SummaryParameter> matchListParam = listSummaryParameter.FindAll(x => (x.ParentName == myParam.Name));
+
+            foreach(SummaryParameter data in matchListParam)
+            {
+                if (data.SortOrder < myParam.SortOrder || data.SortOrder > myRangeSortOrder)
+                    continue;
+
+                //List<SummaryParameter> matchChildData = listSummaryParameter.FindAll(x => (x.ParentName == data.Name && x.SortOrder % 10 == data.SortOrder % 10));
+                List<SummaryParameter> matchChildData = listSummaryParameter.FindAll(x => (x.ParentName == data.Name));
+                if (matchChildData == null || matchChildData.Count <= 0)
+                    myParam.Total += data.Total;
                 else
                 {
-                    parentTotal = new ParentTotal();
-                    parentTotal.SortOrder = findSummaryParameter.SortOrder;
-                    parentTotal.Name = findSummaryParameter.Name;
-                    parentTotal.Total = data.Total;
-                    listParentTotal.Add(parentTotal);
+                    Calcurate(data, myRangeSortOrder);
+                    myParam.Total += data.Total;
                 }
-                idx++;
             }
 
-            foreach (ParentTotal data in listParentTotal)
-            {
-                SummaryParameter summaryParameter = listSummaryParameter.Find(x => (x.Name == data.Name && x.SortOrder == data.SortOrder));
-
-                if (summaryParameter != null)
-                    summaryParameter.Total = data.Total;
-                else
-                    _logger.Debug("findできません [" + data.Name + "]   SortOrder [" + data.SortOrder + "] ");
-            }
+            myParam.IsSummaryCalcurate = true;
         }
 
         class ParentTotal
