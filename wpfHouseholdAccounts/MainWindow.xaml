@@ -166,42 +166,24 @@
                             DisplayMemberPath="@DisplayName" Grid.Column="1" SelectionChanged="cmbMakeupTarget_SelectionChanged" />
                 </StackPanel>
             </Grid>
-            <DataGrid Name="dgridMakeupMain" AutoGenerateColumns="False"
-                      HorizontalAlignment="Left" Margin="5,0,5,5" VerticalAlignment="Top"
-                      IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
-                      Grid.Row="2" MouseDoubleClick="dgridMakeupMain_MouseDoubleClick">
-                <DataGrid.RowStyle>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Setter Property="FontSize" Value="{Binding Path=FontSize}" />
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="上位科目">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=AccountUpperCode}" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="科目名">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=DisplayCodeName}" Width="120" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="金額">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=Amount, StringFormat='###,###,##0'}" Width="100" TextAlignment="Right" Margin="2,1,2,1" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                
+            </Grid>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="2" VerticalAlignment="Top">
+                <Grid Name="lgridSummary" ScrollViewer.CanContentScroll="True" Background="White" MouseDown="lgridSummary_MouseDown">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="250" />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition MinWidth="10" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </ScrollViewer>
             <Grid Name="lgridMoneyInputDetail" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" SizeChanged="lgridMoneyInputDetail_SizeChanged">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60" />
+                    <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <Grid Name="lgridMakeupDetailControl">
@@ -219,9 +201,23 @@
                     <Button Content="追加" Name="btnDetailAdd" Grid.Column="1" Height="25" Margin="0,0,130,35" Width="80" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnDetailAdd_Click" />
                     <Button Content="削除" Name="btnDetailDelete" Grid.Column="1" Height="25" Margin="0,0,130,5" Width="80" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnDetailDelete_Click" />
                 </Grid>
+                <ScrollViewer Name="scllvSummaryEveryAccount" HorizontalScrollBarVisibility="Auto" Grid.Row="1" VerticalAlignment="Top">
+                    <Grid Name="lgridSummaryEveryAccount" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ScrollViewer>
                 <DataGrid Name="dgridMakeupDetail" AutoGenerateColumns="False" HorizontalAlignment="Left" Width="Auto" Margin="5,0,5,5" VerticalAlignment="Top" FontSize="12"
                 SelectionMode="Extended"  IsReadOnly="False" Visibility="Collapsed"
-                CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="1"
+                CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="1" Grid.RowSpan="2"
                 SizeChanged="dgridMakeupDetail_SizeChanged" BeginningEdit="dgridMakeupDetail_BeginningEdit" 
                 LostKeyboardFocus="dgridMakeupDetail_LostKeyboardFocus" PreviewKeyDown="dgridMakeupDetail_PreviewKeyDown" MouseDoubleClick="dgridMakeupDetail_MouseDoubleClick" SelectionChanged="dgridMakeupDetail_SelectionChanged" ContextMenuOpening="menuitemAddCompanyArrear_ContextMenuOpening" >
                     <DataGrid.ContextMenu>
@@ -383,6 +379,7 @@
                 <Grid Name="lgridPaymentSchedule"  Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
+                        <RowDefinition />
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <TextBlock Name="txtbPaymentScheduleSelectAmount" Margin="15,0,0,2" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="18" />
@@ -548,7 +545,7 @@
                         </StackPanel>
                     </Grid>
                     <DataGrid Name="dgridSelectDate" AutoGenerateColumns="False" HorizontalAlignment="Left" VerticalAlignment="Top" Width="315" Height="250" Margin="5,5,0,5" FontSize="20"
-                              HeadersVisibility="None" SelectionMode="Single" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="3" SelectionChanged="dgridSelectDate_SelectionChanged">
+                              HeadersVisibility="None" SelectionMode="Single" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="3" SelectionChanged="dgridSelectDate_SelectionChanged" MouseDoubleClick="dgridSelectDate_MouseDoubleClick">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>

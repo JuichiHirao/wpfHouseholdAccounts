@@ -101,7 +101,11 @@
     <Compile Include="clsPaymentData.cs" />
     <Compile Include="clsPaymentInstallmentPlan.cs" />
     <Compile Include="clsSearchInfo.cs" />
+    <Compile Include="summary\Summary.cs" />
     <Compile Include="clsTravel.cs" />
+    <Compile Include="summary\SummaryEveryAccount.cs" />
+    <Compile Include="summary\SummaryParameter.cs" />
+    <Compile Include="summary\SummaryUi.cs" />
     <Compile Include="winAfterwordsPayment.xaml.cs">
       <DependentUpon>winAfterwordsPayment.xaml</DependentUpon>
     </Compile>
