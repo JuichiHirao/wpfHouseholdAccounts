@@ -715,11 +715,17 @@ namespace wpfHouseholdAccounts
             // 集計表の表示
             if (myMode != LAYOUTMODE_SEARCH)
             {
+                dgridMakeupDetail.SetValue(Grid.RowProperty, 2);
+                dgridMakeupDetail.SetValue(Grid.RowSpanProperty, 1);
+
                 lgridMakeupControl.Visibility = System.Windows.Visibility.Visible;
                 lgridSummary.Visibility = System.Windows.Visibility.Visible;
             }
             else
             {
+                // Grid.Row="1" Grid.RowSpan="2"
+                dgridMakeupDetail.SetValue(Grid.RowProperty, 1);
+                dgridMakeupDetail.SetValue(Grid.RowSpanProperty, 2);
                 lgridMakeupControl.Visibility = System.Windows.Visibility.Hidden;
                 lgridSummary.Visibility = System.Windows.Visibility.Hidden;
             }
@@ -2802,6 +2808,7 @@ namespace wpfHouseholdAccounts
 
                 DataGridMakeupDetailWidthSetting();
 
+                lgridSummaryEveryAccount.RowDefinitions.Clear();
                 lgridSummaryEveryAccount.Children.Clear();
                 SummaryEveryAccount summaryEveryAccount = new SummaryEveryAccount(listData, account);
 

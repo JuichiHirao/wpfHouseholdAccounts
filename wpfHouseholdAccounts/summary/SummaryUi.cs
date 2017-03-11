@@ -76,7 +76,7 @@ namespace wpfHouseholdAccounts.summary
                 {
                     textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
                     textblock.SetValue(Grid.ColumnProperty, 3);
-                    textblock.Margin = new Thickness(3, 3, 23, 3);
+                    textblock.Margin = new Thickness(3, 3, 3, 3);
                 }
                 else
                 {
@@ -93,13 +93,13 @@ namespace wpfHouseholdAccounts.summary
                 if (myIsSub)
                 {
                     textblock.Text = "(" + String.Format("{0:##,###,##0}", myAmount) + ")";
-                    textblock.Margin = new Thickness(3, 3, 43, 3);
+                    textblock.Margin = new Thickness(3, 3, 3, 3);
                     textblock.SetValue(Grid.ColumnProperty, 2);
                 }
                 else
                 {
                     textblock.Text = String.Format("{0:##,###,##0}", myAmount);
-                    textblock.Margin = new Thickness(3, 3, 43, 3);
+                    textblock.Margin = new Thickness(3, 3, 3, 3);
                     textblock.SetValue(Grid.ColumnProperty, 1);
                 }
 
