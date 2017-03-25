@@ -197,12 +197,16 @@ namespace wpfHouseholdAccounts
         }
         public static List<MoneyInputData> ImportXml(string myFilename)
         {
+            List<MoneyInputData> listInputData = new List<MoneyInputData>();
+
+            if (!File.Exists(myFilename))
+            {
+                return listInputData;
+            }
             XElement root = XElement.Load(myFilename);
 
             var listAll = from element in root.Elements("MoneyInput")
                           select element;
-
-            List<MoneyInputData> listInputData = new List<MoneyInputData>();
 
             foreach (XContainer xcon in listAll)
             {

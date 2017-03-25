@@ -26,6 +26,47 @@ namespace wpfHouseholdAccounts
             return nowdata;
         }
 
+        public List<ArrearInputData> GetArrearList(DbConnection dbcon)
+        {
+            List<ArrearInputData> listData = new List<ArrearInputData>();
+
+            dbcon.openConnection();
+
+            string sql = "SELECT 明細ＩＤ, 年月日, 未払コード, A1.科目名 AS 未払名, 借方コード, A2.科目名 AS 借方名, 金額, 摘要, 支払予定日 "
+                        + "  FROM 未払明細 "
+                        + "    LEFT JOIN 科目 AS A1 ON A1.科目コード = 未払明細.未払コード "
+                        + "    LEFT JOIN 科目 AS A2 ON A2.科目コード = 未払明細.借方コード "
+                        + "  ORDER BY 年月日 ";
+
+            SqlDataReader reader = dbcon.GetExecuteReader(sql);
+
+            if (reader.IsClosed)
+            {
+                throw new Exception("arrear.TargetAccountDataの取得でreaderがクローズされています");
+            }
+
+            while (reader.Read())
+            {
+                ArrearInputData data = new ArrearInputData();
+
+                data.Id = DbExportCommon.GetDbInt(reader, 0);
+                data.Date = DbExportCommon.GetDbDateTime(reader, 1);
+                data.ArrearCode = DbExportCommon.GetDbString(reader, 2);
+                data.ArrearName = DbExportCommon.GetDbString(reader, 3);
+                data.DebitCode = DbExportCommon.GetDbString(reader, 4);
+                data.DebitName = DbExportCommon.GetDbString(reader, 5);
+                data.Amount = DbExportCommon.GetDbMoney(reader, 6);
+                data.Summary = DbExportCommon.GetDbString(reader, 7);
+                data.PaymentDate = DbExportCommon.GetDbDateTime(reader, 8);
+
+                listData.Add(data);
+
+                _logger.Trace("Id [" + data.Id + "]  入力 [" + data.Amount + "]");
+            }
+
+            return listData;
+        }
+
         public void Regist(List<MakeupDetailData> myListData, DbConnection dbcon)
         {
             // データベース：トランザクションを開始
@@ -490,6 +531,5 @@ namespace wpfHouseholdAccounts
             }
 
         }
-
     }
 }

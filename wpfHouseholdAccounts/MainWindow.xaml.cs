@@ -1770,6 +1770,14 @@ namespace wpfHouseholdAccounts
             win.Show();
         }
 
+        private void menuitemArrear_Click(object sender, RoutedEventArgs e)
+        {
+
+            winArrear win = new winArrear();
+            win.Owner = this;
+            win.Show();
+        }
+
         private void menuitemAfterwordsPayment_Click(object sender, RoutedEventArgs e)
         {
 
