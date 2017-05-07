@@ -97,7 +97,7 @@
         </Grid>
         <DataGrid Name="dgridMoneyInput" FontSize="18"
                   Margin="5,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Top" 
-                  AutoGenerateColumns="False" SelectionUnit="CellOrRowHeader" SelectionMode="Extended" CanUserAddRows="True" CanUserResizeRows="False"
+                  AutoGenerateColumns="False" SelectionUnit="CellOrRowHeader" SelectionMode="Extended" CanUserDeleteRows="True" CanUserAddRows="True" CanUserResizeRows="False"
                   Grid.Column="1" Grid.Row="1"
                   GotKeyboardFocus="dgridMoneyInput_GotKeyboardFocus" LostKeyboardFocus="dgridMoneyInput_LostKeyboardFocus"
                   PreviewKeyDown="dgridMoneyInput_PreviewKeyDown" RowEditEnding="dgridMoneyInput_RowEditEnding" PreparingCellForEdit="dgridMoneyInput_PreparingCellForEdit" SelectionChanged="dgridMoneyInput_SelectionChanged" >

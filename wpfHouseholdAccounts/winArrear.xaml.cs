@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using wpfHouseholdAccounts.arrear;
 
 namespace wpfHouseholdAccounts
 {
@@ -102,9 +103,10 @@ namespace wpfHouseholdAccounts
                 tbtnModeInput.IsChecked = true;
                 tbtnModeControl.IsChecked = false;
                 dgridMoneyInput.ItemsSource = listArrearInputData;
-                //dgridMoneyInput.SelectionMode = DataGridSelectionMode.Extended;
-                dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
+                dgridMoneyInput.SelectionMode = DataGridSelectionMode.Extended;
+                //dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
                 dgridMoneyInput.CanUserAddRows = true;
+                dgridMoneyInput.CanUserDeleteRows = true;
                 dgridMoneyInput.Columns[5].Visibility = Visibility.Hidden;
                 btnRegister.Content = "登録";
             }
@@ -115,6 +117,7 @@ namespace wpfHouseholdAccounts
                 dgridMoneyInput.ItemsSource = listArrearDbData;
                 dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.FullRow;
                 dgridMoneyInput.CanUserAddRows = false;
+                dgridMoneyInput.CanUserDeleteRows = false;
                 dgridMoneyInput.Columns[5].Visibility = Visibility.Visible;
                 btnRegister.Content = "精算・精算取消";
 
@@ -146,42 +149,60 @@ namespace wpfHouseholdAccounts
         private void btnRegister_Click(object sender, RoutedEventArgs e)
         {
             List<ArrearInputData> listInputData = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
+            TargetAccountData accountData = (TargetAccountData)dgridArrearTarget.SelectedItem;
 
             if (listInputData == null || listInputData.Count <= 0)
             {
                 MessageBox.Show("登録対象のデーターが存在しません");
                 return;
             }
-            return;
+            if (accountData == null)
+            {
+                MessageBox.Show("未払対象の項目が選択されていません");
+                return;
+            }
+            string name = account.getName(accountData.Code);
+            if (name == null || name.Length <= 0)
+            {
+                MessageBox.Show("選択されている未払項目が不正です");
+                return;
+            }
+            if (!btnRegister.Content.Equals("登録"))
+            {
+                MessageBox.Show("モードを「入力」に変更して下さい");
+                return;
+            }
+
+            foreach(ArrearInputData data in (List<ArrearInputData>)dgridMoneyInput.ItemsSource)
+            {
+                name = account.getName(data.DebitCode);
+                if (name == null || name.Length <= 0)
+                {
+                    MessageBox.Show("登録されていないコード[" + data.DebitCode + "]");
+                    return;
+                }
+                data.ArrearCode = accountData.Code;
+            }
 
             try
             {
-                // 入力チェック 入力途中の行は対象としない
-                //   科目コードが全て有効であることの確認
-                //   摘要必須の項目チェック
                 ArrearInput.CheckData(listInputData, account);
 
-                List<PaymentData> paydata = (List<PaymentData>)dgridArrearTarget.ItemsSource;
-
-                // 支払確定の取込漏れチェック
-                //Payment.CheckImported(dispinfoRegistDate, paydata, listInputData);
-
-                //MoneyInputRegist reg = new MoneyInputRegist(listInputData, account, dbcon);
-                //DateTime dtReg = Convert.ToDateTime(dispinfoRegistDate);
-
-                // 入力した内容をXmlファイル名のSuffixに日付を付けて保存する
-                List<ArrearInputData> inputdata = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
-                //MoneyInput.SaveXml(env, dtReg, inputdata);
-
-                // 登録処理の実行
-                //   DBのトランザクションは同メソッド内で完結
-                //reg.Execute(dtReg, dataCash, dataCashCompany);
+                arrears.register(accountData.Code, (List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
 
                 listInputData.Clear();
                 dgridMoneyInput.Items.Refresh();
             }
+            catch (BussinessException bex)
+            {
+                _logger.Error(bex, "btnRegist_Click ");
+
+                MessageBox.Show("エラーが発生" + bex.Message);
+            }
             catch (Exception ex)
             {
+                dbcon.RollbackTransaction();
+
                 _logger.Error(ex, "btnRegist_Click ");
 
                 MessageBox.Show("エラーが発生" + ex.Message);

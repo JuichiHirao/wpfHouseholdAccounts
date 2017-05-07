@@ -252,6 +252,51 @@ namespace wpfHouseholdAccounts
             return;
         }
 
+        public void DatabaseDetailInsert(ArrearInputData myInData, DbConnection argDbCon)
+        {
+            DbConnection myDbCon;
+            string mySqlCommand = "";
+
+            // 引数にコネクションが指定されていた場合は指定されたコネクションを使用
+            if (argDbCon != null)
+                myDbCon = argDbCon;
+            else
+                myDbCon = new DbConnection();
+
+            mySqlCommand = "INSERT INTO 未払明細 ";
+            mySqlCommand = mySqlCommand + "( 年月日, 未払コード, 借方コード, 金額, 摘要 ) ";
+            mySqlCommand = mySqlCommand + "VALUES (@Date, @ArrearCode, @DebitCode, @Amount, @Summary ) ";
+
+            List<SqlParameter> listSqlParams = new List<SqlParameter>();
+
+            SqlParameter sqlParam = new SqlParameter();
+            sqlParam = new SqlParameter("@Date", SqlDbType.DateTime);
+            sqlParam.Value = myInData.Date;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@ArrearCode", SqlDbType.VarChar);
+            sqlParam.Value = myInData.ArrearCode;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@DebitCode", SqlDbType.VarChar);
+            sqlParam.Value = myInData.DebitCode;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@Amount", SqlDbType.Money);
+            sqlParam.Value = myInData.Amount;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@Summary", SqlDbType.VarChar);
+            sqlParam.Value = myInData.Summary;
+            listSqlParams.Add(sqlParam);
+
+            myDbCon.SetParameter(listSqlParams.ToArray());
+
+            myDbCon.execSqlCommand(mySqlCommand);
+
+            return;
+        }
+
         public int GetMaxDataOrder(DbConnection myDbCon)
         {
             if (myDbCon == null)
