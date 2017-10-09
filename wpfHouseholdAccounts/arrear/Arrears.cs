@@ -96,12 +96,26 @@ namespace wpfHouseholdAccounts
                     {
                         if (data.Id <= 0)
                             // 未払明細から一致データを取得
+                            findData = Arrear.GetHistoryData(data, dbcon);
+                        else
+                            findData = data;
+
+                        if (findData == null)
+                            throw new Exception("未払明細履歴に一致する金銭帳のデータが存在しません");
+
+                        // 未払明細を更新
+                        Arrear.UpdateDbUsedCompanyHistoryArrear(findData.Id, 1, dbcon);
+                    }
+                    else if (data.Kind == 6)
+                    {
+                        if (data.Id <= 0)
+                            // 未払明細から一致データを取得
                             findData = Arrear.GetData(data, dbcon);
                         else
                             findData = data;
 
                         if (findData == null)
-                            throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
+                            throw new Exception("未払明細に一致する金銭帳のデータが存在しません");
 
                         // 未払明細を更新
                         Arrear.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);

@@ -104,7 +104,7 @@ namespace wpfHouseholdAccounts
                 tbtnModeControl.IsChecked = false;
                 dgridMoneyInput.ItemsSource = listArrearInputData;
                 dgridMoneyInput.SelectionMode = DataGridSelectionMode.Extended;
-                //dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
+                dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
                 dgridMoneyInput.CanUserAddRows = true;
                 dgridMoneyInput.CanUserDeleteRows = true;
                 dgridMoneyInput.Columns[5].Visibility = Visibility.Hidden;
