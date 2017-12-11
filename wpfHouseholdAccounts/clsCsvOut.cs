@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -78,6 +79,9 @@ namespace wpfHouseholdAccounts
                 if (myData.CreditCode == "30401")
                     dataCsv.CreditName = "売掛金";
 
+                if (myData.CreditCode == "30402")
+                    dataCsv.CreditName = "仮受消費税";
+
                 if (myData.DebitCode.IndexOf("431") == 0)
                     dataCsv.DebitName = "研究開発費";
 
@@ -91,12 +95,28 @@ namespace wpfHouseholdAccounts
                     dataCsv.DebitName = "地代家賃";
                     dataCsv.Remark = "平尾充一";
                 }
+                if (myData.DebitCode == "53004")
+                {
+                    dataCsv.DebitName = "役員賞与";
+                    dataCsv.Remark = "平尾充一";
+                }
+                if (myData.DebitCode == "53201")
+                {
+                    dataCsv.DebitName = "法定福利費";
+                    dataCsv.Remark = "平尾充一";
+                }
+                if (myData.DebitCode == "53103")
+                {
+                    dataCsv.DebitName = "賃借料";
+                    dataCsv.Remark = "MacbookPro";
+                }
+                
                 if (myData.DebitCode == "53003")
                 {
                     dataCsv.DebitName = "雑給";
                     dataCsv.Remark = "平尾静恵";
                 }
-                if (myData.DebitCode == "52001")
+                if (myData.DebitCode == "40901" || myData.DebitCode == "52001")
                     dataCsv.DebitName = "支払手数料";
 
                 if (myData.DebitCode == "53002")
@@ -133,6 +153,11 @@ namespace wpfHouseholdAccounts
                         dataCsv.CreditName = "現金";
                     }
                 }
+                if (myData.DebitCode.Equals("40911"))
+                {
+                    dataCsv.DebitName = "雑費";
+                    dataCsv.Remark = myData.DebitName;
+                }
 
                 if (myData.DebitCode == "12011"
                     || myData.DebitCode == "20801")
@@ -151,38 +176,52 @@ namespace wpfHouseholdAccounts
                     dataCsv.CreditName = "未払金";
                     dataCsv.Remark = "法人用JCBカード支払：" + myData.Remark;
 
-                    if (myData.DebitCode.IndexOf("4010") == 0)
-                        dataCsv.DebitName = "雑費";
-                    else if (myData.DebitCode.IndexOf("401") == 0
-                        || myData.DebitCode.IndexOf("513") == 0)
+                    if (dataCsv.DebitName != null && dataCsv.DebitName.Length > 0)
                     {
-                        if (myData.Amount > 5000)
-                            dataCsv.DebitName = "交際費";
-                        else
-                            dataCsv.DebitName = "雑費";
+
                     }
-                    else if (myData.DebitCode.IndexOf("402") == 0 || myData.DebitCode.IndexOf("403") == 0)
-                        dataCsv.DebitName = "雑費";
-                    else if (myData.DebitCode.IndexOf("404") == 0)
-                        dataCsv.DebitName = "福利厚生費";
-                    else if (myData.DebitCode.IndexOf("406") == 0 || myData.DebitCode.IndexOf("417") == 0)
-                        dataCsv.DebitName = "通信費";
-                    else if (myData.DebitCode.IndexOf("407") == 0)
-                        dataCsv.DebitName = "交際費";
-                    else if (myData.DebitCode.IndexOf("408") == 0)
-                        dataCsv.DebitName = "旅費交通費";
-                    else if (myData.DebitCode.IndexOf("409") == 0)
-                        dataCsv.DebitName = "雑費";
-                    else if (myData.DebitCode.IndexOf("42") == 0)
-                        dataCsv.DebitName = "福利厚生費";
-                    else if (myData.DebitCode.IndexOf("43") == 0)
-                        dataCsv.DebitName = "雑費";
-                    else if (myData.DebitCode.IndexOf("44") == 0)
-                        dataCsv.DebitName = "福利厚生費";
-                    else if (myData.DebitCode.IndexOf("50") == 0)
-                        dataCsv.DebitName = "研究開発費";
-                    else if (myData.DebitCode.IndexOf("60") == 0)
-                        dataCsv.DebitName = "研究開発費";
+                    else
+                    {
+                        if (myData.DebitCode.IndexOf("4010") == 0)
+                            dataCsv.DebitName = "雑費";
+                        else if (myData.DebitCode.IndexOf("401") == 0
+                            || myData.DebitCode.IndexOf("513") == 0)
+                        {
+                            if (myData.Amount > 5000)
+                                dataCsv.DebitName = "交際費";
+                            else
+                                dataCsv.DebitName = "雑費";
+                        }
+                        else if (myData.DebitCode.IndexOf("402") == 0 || myData.DebitCode.IndexOf("403") == 0)
+                            dataCsv.DebitName = "雑費";
+                        else if (myData.DebitCode.Equals("40911"))
+                            dataCsv.DebitName = "雑費";
+                        else if (myData.DebitCode.IndexOf("404") == 0)
+                            dataCsv.DebitName = "福利厚生費";
+                        else if (myData.DebitCode.IndexOf("406") == 0 || myData.DebitCode.IndexOf("417") == 0)
+                            dataCsv.DebitName = "通信費";
+                        else if (myData.DebitCode.IndexOf("407") == 0)
+                            dataCsv.DebitName = "交際費";
+                        else if (myData.DebitCode.IndexOf("408") == 0)
+                            dataCsv.DebitName = "旅費交通費";
+                        else if (myData.DebitCode.IndexOf("409") == 0)
+                            dataCsv.DebitName = "雑費";
+                        else if (myData.DebitCode.IndexOf("42") == 0)
+                            dataCsv.DebitName = "福利厚生費";
+                        else if (myData.DebitCode.IndexOf("43") == 0)
+                            dataCsv.DebitName = "雑費";
+                        else if (myData.DebitCode.IndexOf("44") == 0)
+                            dataCsv.DebitName = "福利厚生費";
+                        else if (myData.DebitCode == "23201")
+                        {
+                            dataCsv.DebitName = "福利厚生費";
+                            dataCsv.Remark = "生協";
+                        }
+                        else if (myData.DebitCode.IndexOf("50") == 0)
+                            dataCsv.DebitName = "研究開発費";
+                        else if (myData.DebitCode.IndexOf("60") == 0)
+                            dataCsv.DebitName = "研究開発費";
+                    }
                 }
 
                 if (myData.UsedCompanyArrear > 0)
@@ -213,8 +252,13 @@ namespace wpfHouseholdAccounts
                             dataCsv.DebitName = "研究開発費";
                         else if (myData.DebitCode.IndexOf("60") == 0)
                             dataCsv.DebitName = "研究開発費";
+                        else if (myData.DebitCode == "23201")
+                        {
+                            dataCsv.DebitName = "福利厚生費";
+                            myData.Remark = "生協";
+                        }
                         else
-                            dataCsv.DebitName = "研究開発費";
+                            dataCsv.DebitName = "雑費";
 
                         if (kindCredit == Account.KIND_DEPT_LOAN)
                         {
@@ -284,6 +328,11 @@ namespace wpfHouseholdAccounts
                     dataCsv.DebitName = "研究開発費";
                 else if (myData.DebitCode.IndexOf("60") == 0)
                     dataCsv.DebitName = "研究開発費";
+                else if (myData.DebitCode == "23201")
+                {
+                    dataCsv.DebitName = "福利厚生費";
+                    myData.Remark = "生協";
+                }
                 else
                     dataCsv.DebitName = "研究開発費";
 

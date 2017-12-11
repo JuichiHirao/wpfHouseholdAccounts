@@ -26,6 +26,47 @@ namespace wpfHouseholdAccounts
             return nowdata;
         }
 
+        public List<ArrearInputData> GetArrearList(DbConnection dbcon)
+        {
+            List<ArrearInputData> listData = new List<ArrearInputData>();
+
+            dbcon.openConnection();
+
+            string sql = "SELECT 明細ＩＤ, 年月日, 未払コード, A1.科目名 AS 未払名, 借方コード, A2.科目名 AS 借方名, 金額, 摘要, 支払予定日 "
+                        + "  FROM 未払明細 "
+                        + "    LEFT JOIN 科目 AS A1 ON A1.科目コード = 未払明細.未払コード "
+                        + "    LEFT JOIN 科目 AS A2 ON A2.科目コード = 未払明細.借方コード "
+                        + "  ORDER BY 年月日 ";
+
+            SqlDataReader reader = dbcon.GetExecuteReader(sql);
+
+            if (reader.IsClosed)
+            {
+                throw new Exception("arrear.TargetAccountDataの取得でreaderがクローズされています");
+            }
+
+            while (reader.Read())
+            {
+                ArrearInputData data = new ArrearInputData();
+
+                data.Id = DbExportCommon.GetDbInt(reader, 0);
+                data.Date = DbExportCommon.GetDbDateTime(reader, 1);
+                data.ArrearCode = DbExportCommon.GetDbString(reader, 2);
+                data.ArrearName = DbExportCommon.GetDbString(reader, 3);
+                data.DebitCode = DbExportCommon.GetDbString(reader, 4);
+                data.DebitName = DbExportCommon.GetDbString(reader, 5);
+                data.Amount = DbExportCommon.GetDbMoney(reader, 6);
+                data.Summary = DbExportCommon.GetDbString(reader, 7);
+                data.PaymentDate = DbExportCommon.GetDbDateTime(reader, 8);
+
+                listData.Add(data);
+
+                _logger.Trace("Id [" + data.Id + "]  入力 [" + data.Amount + "]");
+            }
+
+            return listData;
+        }
+
         public void Regist(List<MakeupDetailData> myListData, DbConnection dbcon)
         {
             // データベース：トランザクションを開始
@@ -55,12 +96,26 @@ namespace wpfHouseholdAccounts
                     {
                         if (data.Id <= 0)
                             // 未払明細から一致データを取得
+                            findData = Arrear.GetHistoryData(data, dbcon);
+                        else
+                            findData = data;
+
+                        if (findData == null)
+                            throw new Exception("未払明細履歴に一致する金銭帳のデータが存在しません");
+
+                        // 未払明細を更新
+                        Arrear.UpdateDbUsedCompanyHistoryArrear(findData.Id, 1, dbcon);
+                    }
+                    else if (data.Kind == 6)
+                    {
+                        if (data.Id <= 0)
+                            // 未払明細から一致データを取得
                             findData = Arrear.GetData(data, dbcon);
                         else
                             findData = data;
 
                         if (findData == null)
-                            throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
+                            throw new Exception("未払明細に一致する金銭帳のデータが存在しません");
 
                         // 未払明細を更新
                         Arrear.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
@@ -488,8 +543,83 @@ namespace wpfHouseholdAccounts
             {
                 reader.Close();
             }
-
         }
 
+        public void Register(string myArrearCode, List<ArrearInputData> myList, DbConnection myDbcon)
+        {
+            myDbcon.BeginTransaction("ARREARREGISTERTBEGIN");
+
+            try
+            {
+                MoneyInput moneyin = new MoneyInput();
+                Arrear arrear = new Arrear();
+
+                // 各データの判別、処理
+                foreach (ArrearInputData data in myList)
+                {
+                    MoneyInputData inputData = new MoneyInputData(myArrearCode, data);
+
+                    arrear.DatabaseDetailInsert(data, myDbcon);
+                    MoneyInput.InsertDbData(inputData, myDbcon);
+                }
+            }
+            catch (SqlException errsql)
+            {
+                _logger.Error(errsql);
+                myDbcon.RollbackTransaction();
+                throw errsql;
+            }
+            catch (BussinessException errbsn)
+            {
+                _logger.Error(errbsn);
+                myDbcon.RollbackTransaction();
+                throw errbsn;
+            }
+
+            // データベースの更新をコミットする
+            //myDbcon.CommitTransaction();
+        }
+        public void Adjustment(string myArrearCode, DateTime myPaymentDate, List<ArrearInputData> myTargetList, DbConnection myDbcon)
+        {
+            myDbcon.BeginTransaction("MONEYADJUSTMENTBEGIN");
+
+            try
+            {
+                MethodPayment payment = new MethodPayment();
+                Arrear arrear = new Arrear();
+
+                int total = 0;
+
+                // 引数で選択データが精算・取消対象なので全て処理
+                foreach (ArrearInputData data in myTargetList)
+                {
+                    // 未払明細の更新
+                    arrear.DatabaseDetailUpdate(data, myPaymentDate, myDbcon);
+                    total += Convert.ToInt32(data.Amount);
+                }
+
+                // 支払確定挿入用にMoneyInputDataの生成
+                MoneyInputData indata = new MoneyInputData();
+
+                indata.Date = myPaymentDate;
+                indata.DebitCode = myArrearCode;
+                indata.CreditCode = Account.CODE_CASH;    // 現金
+                indata.Amount = total;
+
+                payment.DatabaseDecisionInsert(myArrearCode, indata, myDbcon);
+
+                myDbcon.CommitTransaction();
+            }
+            catch (SqlException errsql)
+            {
+                myDbcon.RollbackTransaction();
+                throw errsql;
+            }
+            catch (BussinessException errbsn)
+            {
+                myDbcon.RollbackTransaction();
+                throw errbsn;
+            }
+        }
     }
 }

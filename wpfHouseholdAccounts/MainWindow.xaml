@@ -59,6 +59,7 @@
                 <MenuItem Header="SND入力"  Click="menuitemSndInput_Click"/>
                 <MenuItem Header="MY入力"  Click="menuitemInput_Click"/>
                 <MenuItem Header="後日払い入力"  Click="menuitemAfterwordsPayment_Click"/>
+                <MenuItem Header="未払金入力"  Click="menuitemArrear_Click"/>
                 <MenuItem Header="旅行の登録" Click="menuitemTravelRegist_Click" />
             </MenuItem>
             <MenuItem Header="出力(_O)">

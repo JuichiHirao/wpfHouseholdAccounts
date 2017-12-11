@@ -8,7 +8,7 @@ using NLog;
 
 namespace wpfHouseholdAccounts
 {
-	class Environment
+	public class Environment
 	{
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 

@@ -169,6 +169,15 @@ namespace wpfHouseholdAccounts
             UsedCompanyArrear = 0;
         }
 
+        public MoneyInputData(string myArrearCode, ArrearInputData myArrearInputData)
+        {
+            Date = myArrearInputData.Date;
+            CreditCode = myArrearCode;
+            DebitCode = myArrearInputData.DebitCode;
+            Amount = myArrearInputData.Amount;
+            Remark = myArrearInputData.Summary;
+        }
+
         private void NotifyPropertyChanged(String info)
         {
             if (PropertyChanged != null)

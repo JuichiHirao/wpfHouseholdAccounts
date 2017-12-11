@@ -63,14 +63,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ArrearInputData.cs" />
+    <Compile Include="arrear\ArrearInput.cs" />
+    <Compile Include="arrear\TargetAccount.cs" />
     <Compile Include="clsAccount.cs" />
     <Compile Include="clsAccountData.cs" />
     <Compile Include="clsAdvance.cs" />
     <Compile Include="clsAfterwordsPayment.cs" />
     <Compile Include="clsAfterwordsPaymentData.cs" />
-    <Compile Include="clsArrear.cs" />
-    <Compile Include="clsArrears.cs" />
+    <Compile Include="arrear\Arrear.cs" />
+    <Compile Include="arrear\Arrears.cs" />
     <Compile Include="clsBankAccount.cs" />
     <Compile Include="clsBudget.cs" />
     <Compile Include="clsBudgetAccount.cs" />
@@ -108,6 +109,9 @@
     <Compile Include="summary\SummaryUi.cs" />
     <Compile Include="winAfterwordsPayment.xaml.cs">
       <DependentUpon>winAfterwordsPayment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="winArrear.xaml.cs">
+      <DependentUpon>winArrear.xaml</DependentUpon>
     </Compile>
     <Compile Include="winMoneyInput.xaml.cs">
       <DependentUpon>winMoneyInput.xaml</DependentUpon>
@@ -166,6 +170,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="winArrear.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="winMoneyInput.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -179,6 +187,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
