@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +32,6 @@ namespace wpfHouseholdAccounts
         Environment env;
         Arrears arrears;
 
-        List<AccountData> listAccount;
         List<AccountData> listAccountDetail;
         List<arrear.TargetAccountData> listTargetAccountData;
         List<ArrearInputData> listArrearInputData = null;
@@ -82,7 +82,7 @@ namespace wpfHouseholdAccounts
             listAccountDetail = accountDetail.GetItems();
             lstAccountDetail.ItemsSource = listAccountDetail;
 
-            dtpickAdjustDate.SelectedDate = dispinfoAdjustDate  = DateTime.Now;
+            dtpickAdjustDate.SelectedDate = dispinfoAdjustDate  = DateTime.Now.Date;
 
             listArrearDbData = arrears.GetArrearList(dbcon);
             listArrearInputData = ArrearInput.ImportXml(env);
@@ -169,8 +169,22 @@ namespace wpfHouseholdAccounts
             }
             if (!btnRegister.Content.Equals("登録"))
             {
-                MessageBox.Show("モードを「入力」に変更して下さい");
-                return;
+                if (txtPaymentAmount.Text.Length <= 0)
+                {
+                    MessageBox.Show("精算する金額を入力して下さい");
+                    return;
+                }
+                long total = 0;
+                foreach(ArrearInputData data in dgridMoneyInput.SelectedItems)
+                    total += data.Amount;
+
+                long paymentTotal = Convert.ToInt32(txtPaymentAmount.Text);
+
+                if (total != paymentTotal)
+                {
+                    MessageBox.Show("精算する金額が選択した行の合計と合っていません");
+                    return;
+                }
             }
 
             foreach(ArrearInputData data in (List<ArrearInputData>)dgridMoneyInput.ItemsSource)
@@ -188,21 +202,37 @@ namespace wpfHouseholdAccounts
             {
                 ArrearInput.CheckData(listInputData, account);
 
-                arrears.register(accountData.Code, (List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
+                if (tbtnModeInput.IsChecked == true)
+                {
+                    arrears.Register(accountData.Code, (List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
 
-                listInputData.Clear();
-                dgridMoneyInput.Items.Refresh();
+                    // 登録した入力データをDataGridから削除
+                    listInputData.Clear();
+                    dgridMoneyInput.Items.Refresh();
+                }
+                else if (tbtnModeControl.IsChecked == true)
+                {
+                    List<ArrearInputData> list = new List<ArrearInputData>();
+                    foreach (ArrearInputData data in dgridMoneyInput.SelectedItems)
+                        list.Add(data);
+
+                    arrears.Adjustment(accountData.Code, dispinfoAdjustDate, list, dbcon);
+
+                    // 支払予定日に日付を設定
+                    foreach(ArrearInputData data in list)
+                        data.PaymentDate = dispinfoAdjustDate;
+                }
             }
             catch (BussinessException bex)
             {
                 _logger.Error(bex, "btnRegist_Click ");
+                _logger.Debug(bex.Message);
 
                 MessageBox.Show("エラーが発生" + bex.Message);
             }
             catch (Exception ex)
             {
-                dbcon.RollbackTransaction();
-
+                Debug.Write(ex);
                 _logger.Error(ex, "btnRegist_Click ");
 
                 MessageBox.Show("エラーが発生" + ex.Message);

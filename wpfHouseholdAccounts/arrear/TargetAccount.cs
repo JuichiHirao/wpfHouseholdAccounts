@@ -34,13 +34,10 @@ namespace wpfHouseholdAccounts.arrear
         {
             dbcon.openConnection();
 
-            string sql = "SELECT 未払.未払コード, 未払名, SUM(DETAIL1.金額) AS INPUT_AMOUNT, SUM(DETAIL2.金額) AS ADJUST_AMOUNT "
-                            + "FROM 未払 "
-                            + "    LEFT JOIN (SELECT * FROM 未払明細 WHERE 支払予定日 IS NULL) AS DETAIL1 "
-                            + "      ON 未払.未払コード = DETAIL1.未払コード "
-                            + "    LEFT JOIN (SELECT * FROM 未払明細 WHERE 支払予定日 IS NOT NULL) AS DETAIL2 "
-                            + "      ON 未払.未払コード = DETAIL2.未払コード "
-                            + "  GROUP BY 未払.未払コード, 未払.未払名 ";
+            string sql = "SELECT 未払.未払コード, 未払名"
+                            + ", (SELECT SUM(金額) FROM 未払明細 WHERE 支払予定日 IS NULL) AS INPUT_AMOUNT"
+                            + ", (SELECT SUM(金額) FROM 未払明細 WHERE 支払予定日 IS NOT NULL) AS ADJUST_AMOUNT "
+                            + "FROM 未払 ";
 
             SqlDataReader reader = dbcon.GetExecuteReader(sql);
 

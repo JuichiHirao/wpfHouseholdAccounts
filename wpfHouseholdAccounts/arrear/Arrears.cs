@@ -545,8 +545,10 @@ namespace wpfHouseholdAccounts
             }
         }
 
-        public void register(string myArrearCode, List<ArrearInputData> myList, DbConnection myDbcon)
+        public void Register(string myArrearCode, List<ArrearInputData> myList, DbConnection myDbcon)
         {
+            myDbcon.BeginTransaction("ARREARREGISTERTBEGIN");
+
             try
             {
                 MoneyInput moneyin = new MoneyInput();
@@ -577,74 +579,47 @@ namespace wpfHouseholdAccounts
             // データベースの更新をコミットする
             //myDbcon.CommitTransaction();
         }
-        /*
-        private void Adjustment(DbConnection myDbcon)
+        public void Adjustment(string myArrearCode, DateTime myPaymentDate, List<ArrearInputData> myTargetList, DbConnection myDbcon)
         {
-            // データベース：トランザクションを開始
             myDbcon.BeginTransaction("MONEYADJUSTMENTBEGIN");
 
-            string ArrearCode = Convert.ToString(gridvAppearTarget.SelectedRows[0].Cells[0].Value);
             try
             {
-                MethodPayment pay = new MethodPayment();
+                MethodPayment payment = new MethodPayment();
                 Arrear arrear = new Arrear();
 
-                DateTime PaymentScheduleDate = Convert.ToDateTime(dtpickPaymentSchedule.Text);
-                int Total = 0;
+                int total = 0;
 
-                // 各データの判別、処理
-                for (int Index = 0; Index < gridvMain.RowCount; Index++)
+                // 引数で選択データが精算・取消対象なので全て処理
+                foreach (ArrearInputData data in myTargetList)
                 {
-                    // 選択されていない場合は対象外
-                    bool boolCheck = Convert.ToBoolean(gridvMain.Rows[Index].Cells[GRIDCLM_AJ_SELECT].Value);
-
-                    if (boolCheck == false)
-                        continue;
-
-                    string WorkDebitCode = Convert.ToString(gridvMain.Rows[Index].Cells[GRIDCLM_AJ_DEBITCODE].Value);
-
-                    // 借方 or 貸方が入力されていないＲｏｗは対象外
-                    if (WorkDebitCode.Length > 0)
-                    {
-                        int DetailId = Convert.ToInt32(gridvMain.Rows[Index].Cells[GRIDCLM_AJ_DETAILID].Value);
-
-                        int WorkAmount = Convert.ToInt32(gridvMain.Rows[Index].Cells[GRIDCLM_AJ_AMOUNT].Value);
-
-                        Total = Total + WorkAmount;
-
-                        // データベースへの反映
-                        arrear.DatabaseDetailUpdate(DetailId, PaymentScheduleDate, dbcon);
-                    }
+                    // 未払明細の更新
+                    arrear.DatabaseDetailUpdate(data, myPaymentDate, myDbcon);
+                    total += Convert.ToInt32(data.Amount);
                 }
+
                 // 支払確定挿入用にMoneyInputDataの生成
                 MoneyInputData indata = new MoneyInputData();
 
-                indata.Date = PaymentScheduleDate;
-                indata.DebitCode = ArrearCode;
-                indata.CreditCode = MasterAccount.CODE_CASH;    // 現金
-                indata.Amount = Total;
+                indata.Date = myPaymentDate;
+                indata.DebitCode = myArrearCode;
+                indata.CreditCode = Account.CODE_CASH;    // 現金
+                indata.Amount = total;
 
-                pay.DatabaseDecisionInsert(ArrearCode, indata, myDbcon);
+                payment.DatabaseDecisionInsert(myArrearCode, indata, myDbcon);
+
+                myDbcon.CommitTransaction();
             }
             catch (SqlException errsql)
             {
-                // データベースの更新をロールバックする
                 myDbcon.RollbackTransaction();
                 throw errsql;
             }
             catch (BussinessException errbsn)
             {
-                // データベースの更新をロールバックする
                 myDbcon.RollbackTransaction();
                 throw errbsn;
             }
-
-            // データベースの更新をコミットする
-            myDbcon.CommitTransaction();
-
-            // グリッドをクリアする
-            dtsetArrearInput.Tables["INPUTDATA"].Clear();
         }
-         */
     }
 }

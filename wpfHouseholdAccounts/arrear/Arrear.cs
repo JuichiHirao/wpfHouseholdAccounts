@@ -49,10 +49,29 @@ namespace wpfHouseholdAccounts
                 myDbCon = new DbConnection();
 
             SqlExecCommand = "INSERT INTO 未払明細履歴 ";
-            SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日 ) ";
-            SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード,'" + myPaymentCode + "', 金額,摘要,支払予定日 ";
-            SqlExecCommand = SqlExecCommand + "        FROM 未払明細 ";
-            SqlExecCommand = SqlExecCommand + "    WHERE 未払コード = '" + myArrearCode + "' AND 支払予定日 = '" + myAdjustmentDate.ToShortDateString() + "' ";
+            SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日, USED_COMPANY_ARREAR ) ";
+            SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード, @PaymentCode, 金額,摘要,支払予定日, USED_COMPANY_ARREAR ";
+            SqlExecCommand = SqlExecCommand + "        FROM 未払明細  ";
+            SqlExecCommand = SqlExecCommand + "    WHERE 未払コード = @ArrearCode AND 支払予定日 = @AdjustmentDate ";
+
+            SqlCommand scmd = new SqlCommand(SqlExecCommand, myDbCon.getSqlConnection());
+            DataTable dtSaraly = new DataTable();
+
+            List<SqlParameter> sqlparams = new List<SqlParameter>();
+
+            SqlParameter sqlParam = new SqlParameter("@PaymentCode", SqlDbType.VarChar);
+            sqlParam.Value = myPaymentCode;
+            sqlparams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@ArrearCode", SqlDbType.VarChar);
+            sqlParam.Value = myArrearCode;
+            sqlparams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@AdjustmentDate", SqlDbType.DateTime);
+            sqlParam.Value = myAdjustmentDate;
+            sqlparams.Add(sqlParam);
+
+            myDbCon.SetParameter(sqlparams.ToArray());
 
             myDbCon.execSqlCommand(SqlExecCommand);
         }
@@ -468,6 +487,63 @@ namespace wpfHouseholdAccounts
             myDbCon.SetParameter(listSqlParams.ToArray());
 
             myDbCon.execSqlCommand(mySqlCommand);
+
+            return;
+        }
+
+        public void DatabaseDetailUpdate(ArrearInputData myInData, DateTime myPaymentSchedule, DbConnection argDbCon)
+        {
+            DbConnection myDbCon;
+
+            // 引数にコネクションが指定されていた場合は指定されたコネクションを使用
+            if (argDbCon != null)
+                myDbCon = argDbCon;
+            else
+                myDbCon = new DbConnection();
+
+            string sql = "UPDATE 未払明細 "
+                            + "SET 年月日 = @Date "
+                            + ", 未払コード = @ArrearCode "
+                            + ", 借方コード = @DebitCode "
+                            + ", 金額 = @Amount"
+                            + ", 摘要 = @Summary "
+                            + ", 支払予定日 = @PaymentSchedule "
+                            + "WHERE 明細ＩＤ = @Id";
+
+            List<SqlParameter> listSqlParams = new List<SqlParameter>();
+
+            SqlParameter sqlParam = new SqlParameter();
+            sqlParam = new SqlParameter("@Date", SqlDbType.DateTime);
+            sqlParam.Value = myInData.Date;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@ArrearCode", SqlDbType.VarChar);
+            sqlParam.Value = myInData.ArrearCode;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@DebitCode", SqlDbType.VarChar);
+            sqlParam.Value = myInData.DebitCode;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@Amount", SqlDbType.Money);
+            sqlParam.Value = myInData.Amount;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@Summary", SqlDbType.VarChar);
+            sqlParam.Value = myInData.Summary;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@PaymentSchedule", SqlDbType.DateTime);
+            sqlParam.Value = myPaymentSchedule;
+            listSqlParams.Add(sqlParam);
+
+            sqlParam = new SqlParameter("@Id", SqlDbType.VarChar);
+            sqlParam.Value = myInData.Id;
+            listSqlParams.Add(sqlParam);
+
+            myDbCon.SetParameter(listSqlParams.ToArray());
+
+            myDbCon.execSqlCommand(sql);
 
             return;
         }
@@ -908,12 +984,12 @@ namespace wpfHouseholdAccounts
 				myDbCon = new DbConnection();
 
 			SqlExecCommand = "INSERT INTO 未払明細履歴 ";
-			SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日 ) ";
-			SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード,'" + myPaymentCode + "', 金額,摘要,支払予定日 ";
+			SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日, USED_COMPANY_ARREAR ) ";
+			SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード,'" + myPaymentCode + "', 金額,摘要,支払予定日, USED_COMPANY_ARREAR ";
 			SqlExecCommand = SqlExecCommand + "        FROM 未払明細 ";
 			SqlExecCommand = SqlExecCommand + "    WHERE 未払コード = '" + myArrearCode + "' AND 支払予定日 = '" + myAdjustmentDate.ToShortDateString() + "' ";
 
-			myDbCon.execSqlCommand(SqlExecCommand);
+            myDbCon.execSqlCommand(SqlExecCommand);
 		}
 		public void DatabaseDetailInsert(ArrearInputData myInData, DbConnection argDbCon)
 		{
