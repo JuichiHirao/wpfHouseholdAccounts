@@ -902,8 +902,8 @@ namespace wpfHouseholdAccounts
 
         private void OnFilterToggleButtonClick(object sender, RoutedEventArgs e)
         {
-            string[] arrCode = { "201", "208", "102",  "204", "207", "232", "231", "203" };
-            string[] arrName = { "JCB", "法人JCB", "口座", "京王", "セゾン", "Pal", "大地", "ヨドバシ" };
+            string[] arrCode = { "2010", "2080", "102",  "2040", "2070", "2320", "2300", "2030", "2090", "2011" };
+            string[] arrName = { "JCB", "法人JCB", "口座", "京王", "セゾン", "Pal", "大地", "ヨドバシ", "アトレ", "ビュー" };
             ToggleButton senderButton = sender as ToggleButton;
 
             if (senderButton == null)
@@ -1237,7 +1237,15 @@ namespace wpfHouseholdAccounts
                 // データグリッド上にはなく、借入集計が未精算の //
                 // 借入取引コードをリストへ追加する             //
                 //////////////////////////////////////////////////
-                List<string> listLoanDealingCode = Loan.GetListLoanDealingCode(dispinfoFilterCreditCode + "00");
+                string filterCreditCode = "";
+                if (dispinfoFilterCreditCode.Length == 4)
+                    filterCreditCode = dispinfoFilterCreditCode + "0";
+                else if (dispinfoFilterCreditCode.Length == 3)
+                    filterCreditCode = dispinfoFilterCreditCode + "00";
+                else
+                    throw new BussinessException("filterCreditCodeが4桁、または3桁ではありません");
+
+                List<string> listLoanDealingCode = Loan.GetListLoanDealingCode(filterCreditCode);
 
                 ////////////////////////////
                 // トランザクションの開始 //

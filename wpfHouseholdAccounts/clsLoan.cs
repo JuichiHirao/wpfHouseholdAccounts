@@ -346,7 +346,7 @@ namespace wpfHouseholdAccounts
                 PaymentData data = myListData[0];
 
                 // 借入取引コードから取引内容の情報をデータベースから取得
-                LoanData loanInfo = this.GetDbLoanData(data.CreditCode, data.CreditCode);
+                LoanData loanInfo = this.GetDbLoanData(myLoanCode, myLoanCode);
                 loanInfo.PaymentDate = myPaymentDate;
 
                 // 支払種類により生成するオブジェクト、使用するメソッドを設定
