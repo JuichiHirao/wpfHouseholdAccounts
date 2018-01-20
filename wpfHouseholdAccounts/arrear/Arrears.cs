@@ -577,7 +577,7 @@ namespace wpfHouseholdAccounts
             }
 
             // データベースの更新をコミットする
-            //myDbcon.CommitTransaction();
+            myDbcon.CommitTransaction();
         }
         public void Adjustment(string myArrearCode, DateTime myPaymentDate, List<ArrearInputData> myTargetList, DbConnection myDbcon)
         {
