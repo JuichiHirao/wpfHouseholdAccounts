@@ -902,8 +902,8 @@ namespace wpfHouseholdAccounts
 
         private void OnFilterToggleButtonClick(object sender, RoutedEventArgs e)
         {
-            string[] arrCode = { "2010", "2080", "102",  "2040", "2070", "2320", "2300", "2030", "2090", "2011" };
-            string[] arrName = { "JCB", "法人JCB", "口座", "京王", "セゾン", "Pal", "大地", "ヨドバシ", "アトレ", "ビュー" };
+            string[] arrCode = { "2010", "2080", "102",  "2040", "2012", "2320", "2300", "2030", "2090", "2011" };
+            string[] arrName = { "JCB", "法人JCB", "口座", "京王", "ヤフー", "Pal", "大地", "ヨドバシ", "アトレ", "ビュー" };
             ToggleButton senderButton = sender as ToggleButton;
 
             if (senderButton == null)
