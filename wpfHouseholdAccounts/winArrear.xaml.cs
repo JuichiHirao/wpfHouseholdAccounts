@@ -95,6 +95,13 @@ namespace wpfHouseholdAccounts
             SetToggleMode(((ToggleButton)sender).Content);
 
             SetArrearUiSetting();
+
+            int idx = 0;
+            foreach (DataGridColumn col in dgridMoneyInput.Columns)
+            {
+                Debug.Print("col[" + idx + "].ActualWidth [" + col.ActualWidth + "]");
+                idx++;
+            }
         }
         private void SetArrearUiSetting()
         {
@@ -240,10 +247,13 @@ namespace wpfHouseholdAccounts
                         var txtbox = e.OldFocus as TextBox;
                         cell = txtbox.Parent as DataGridCell;
 
-                        if (cell.Column.Header.Equals("借CD"))
+                        if (cell.Column.Header.Equals("借CD")
+                            || cell.Column.Header.Equals("未CD"))
                         {
                             if (cell.Column.Header.Equals("借CD"))
                                 data.DebitCode = txtbox.Text;
+                            if (cell.Column.Header.Equals("未CD"))
+                                data.ArrearCode = txtbox.Text;
 
                             lstAccountExpense.Visibility = System.Windows.Visibility.Collapsed;
                             lstAccountDetail.Visibility = System.Windows.Visibility.Collapsed;
@@ -302,6 +312,11 @@ namespace wpfHouseholdAccounts
                     if (cell.Column.Header.Equals("借CD"))
                     {
                         data.DebitName = account.getName(data.DebitCode);
+                        _logger.Debug("dgridMoneyInput_LostKeyboardFocus [" + cell.Column.Header + "]  DebitCode [" + data.DebitCode + "]   DebitName [" + data.DebitName + "]");
+                    }
+                    if (cell.Column.Header.Equals("未CD"))
+                    {
+                        data.ArrearName = account.getName(data.ArrearCode);
                         _logger.Debug("dgridMoneyInput_LostKeyboardFocus [" + cell.Column.Header + "]  DebitCode [" + data.DebitCode + "]   DebitName [" + data.DebitName + "]");
                     }
                 }
@@ -412,7 +427,8 @@ namespace wpfHouseholdAccounts
                     return;
 
                 _logger.Debug("GotKeyboardFocus cell.Column.Header [" + cell.Column.Header + "]");
-                if (cell.Column.Header.Equals("借CD"))
+                if (cell.Column.Header.Equals("借CD")
+                    || cell.Column.Header.Equals("未CD"))
                 {
                     lstAccountExpense.Visibility = System.Windows.Visibility.Visible;
                     lstAccountDetail.Visibility = System.Windows.Visibility.Visible;

@@ -110,6 +110,7 @@ namespace wpfHouseholdAccounts
                 NotifyPropertyChanged("DebitName");
             }
         }
+
         private string _ArrearCode;
         public string ArrearCode
         {

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpfHouseholdAccounts"
         mc:Ignorable="d"
-        Title="未払" Height="876" Width="1100" Loaded="Window_Loaded" Closing="Window_Closing">
-    <Grid Width="1060" Margin="0,0,0,0">
+        Title="未払" Height="876" Width="1370" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid Width="1350" Margin="0,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="250" />
             <RowDefinition />
@@ -17,9 +17,9 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="580" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="720" />
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="180" />
             </Grid.ColumnDefinitions>
             <Border Margin="5,5,5,5" BorderBrush="Black" BorderThickness="1" Grid.Column="1">
                 <Grid>
@@ -117,6 +117,23 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="借方名" Binding="{Binding DebitName}" IsReadOnly="True" MaxWidth="200">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="3,3,3,1" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="未CD" Binding="{Binding ArrearCode}" Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="3,3,3,3" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="未払科目名" Binding="{Binding ArrearName}" IsReadOnly="True" MaxWidth="200">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Margin" Value="3,3,3,1" />
