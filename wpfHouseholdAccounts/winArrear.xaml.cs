@@ -149,22 +149,10 @@ namespace wpfHouseholdAccounts
         private void btnRegister_Click(object sender, RoutedEventArgs e)
         {
             List<ArrearInputData> listInputData = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
-            TargetAccountData accountData = (TargetAccountData)dgridArrearTarget.SelectedItem;
 
             if (listInputData == null || listInputData.Count <= 0)
             {
                 MessageBox.Show("登録対象のデーターが存在しません");
-                return;
-            }
-            if (accountData == null)
-            {
-                MessageBox.Show("未払対象の項目が選択されていません");
-                return;
-            }
-            string name = account.getName(accountData.Code);
-            if (name == null || name.Length <= 0)
-            {
-                MessageBox.Show("選択されている未払項目が不正です");
                 return;
             }
             if (!btnRegister.Content.Equals("登録"))
@@ -187,24 +175,13 @@ namespace wpfHouseholdAccounts
                 }
             }
 
-            foreach(ArrearInputData data in (List<ArrearInputData>)dgridMoneyInput.ItemsSource)
-            {
-                name = account.getName(data.DebitCode);
-                if (name == null || name.Length <= 0)
-                {
-                    MessageBox.Show("登録されていないコード[" + data.DebitCode + "]");
-                    return;
-                }
-                data.ArrearCode = accountData.Code;
-            }
-
             try
             {
                 ArrearInput.CheckData(listInputData, account);
 
                 if (tbtnModeInput.IsChecked == true)
                 {
-                    arrears.Register(accountData.Code, (List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
+                    arrears.Register((List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
 
                     // 登録した入力データをDataGridから削除
                     listInputData.Clear();
@@ -216,7 +193,9 @@ namespace wpfHouseholdAccounts
                     foreach (ArrearInputData data in dgridMoneyInput.SelectedItems)
                         list.Add(data);
 
-                    arrears.Adjustment(accountData.Code, dispinfoAdjustDate, list, dbcon);
+                    List<AdjustmentData> listAdjustmentData = arrears.CalcrateAdjustment(list, account);
+
+                    arrears.Adjustment(listAdjustmentData, dispinfoAdjustDate, list, dbcon);
 
                     // 支払予定日に日付を設定
                     foreach(ArrearInputData data in list)
