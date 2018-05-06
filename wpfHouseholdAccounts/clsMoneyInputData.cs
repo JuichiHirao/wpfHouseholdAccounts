@@ -176,6 +176,9 @@ namespace wpfHouseholdAccounts
             DebitCode = myArrearInputData.DebitCode;
             Amount = myArrearInputData.Amount;
             Remark = myArrearInputData.Summary;
+
+            if (myArrearInputData.JournalId > 0)
+                id = myArrearInputData.JournalId;
         }
 
         private void NotifyPropertyChanged(String info)

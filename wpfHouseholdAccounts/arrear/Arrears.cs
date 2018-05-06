@@ -663,5 +663,49 @@ namespace wpfHouseholdAccounts
                 throw errbsn;
             }
         }
+
+        public int UpdateRow(List<ArrearInputData> myTargetList, DbConnection myDbcon)
+        {
+            myDbcon.BeginTransaction("MONEYADJUSTMENTBEGIN");
+
+            int cnt = 0;
+            try
+            {
+                MethodPayment payment = new MethodPayment();
+                Arrear arrear = new Arrear();
+
+                foreach (ArrearInputData data in myTargetList)
+                {
+                    if (data.Operate == 1)
+                    {
+                        // 未払明細の更新
+                        arrear.DatabaseDetailUpdate(data, data.PaymentDate, myDbcon);
+
+                        MoneyInputData inputData = new MoneyInputData(data);
+                        int updateRow = MoneyInput.UpdateDb(inputData, "金銭帳", myDbcon);
+
+                        if (updateRow <= 0 || updateRow > 1)
+                            throw new BussinessException("更新される行数が違っています " + updateRow);
+
+                        cnt++;
+                    }
+                }
+
+                myDbcon.CommitTransaction();
+            }
+            catch (SqlException errsql)
+            {
+                myDbcon.RollbackTransaction();
+                throw errsql;
+            }
+            catch (BussinessException errbsn)
+            {
+                myDbcon.RollbackTransaction();
+                throw errbsn;
+            }
+
+            return cnt;
+        }
+
     }
 }

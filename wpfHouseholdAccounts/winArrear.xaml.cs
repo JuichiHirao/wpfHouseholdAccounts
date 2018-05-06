@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -246,6 +247,39 @@ namespace wpfHouseholdAccounts
                     {
                         var txtbox = e.OldFocus as TextBox;
                         cell = txtbox.Parent as DataGridCell;
+
+                        // 各MakeupDetailDataのメソッドで入力値をチェックしてプロパティへ格納
+                        // 行変更のためのOperateも更新する
+                        if (cell.Column.Header.Equals("借CD")
+                            && !data.DebitCode.Equals(txtbox.Text))
+                            data.Operate = 1;
+                        else if (cell.Column.Header.Equals("未CD")
+                                 && !data.ArrearCode.Equals(txtbox.Text))
+                            data.Operate = 1;
+                        else if (cell.Column.Header.Equals("日付")
+                                 && !data.DisplayDate.Equals(txtbox.Text))
+                            data.Operate = 1;
+                        else if (cell.Column.Header.Equals("金額")
+                                 && !data.Amount.Equals(Convert.ToInt64(txtbox.Text)))
+                            data.Operate = 1;
+                        else if (cell.Column.Header.Equals("摘要"))
+                            data.Operate = 1;
+
+                        if (data.Operate == 1)
+                        {
+                            // 行の更新をした時に、修正前の情報で金銭帳IDを取得する
+                            MakeupDetailData detailData = new MakeupDetailData();
+                            detailData.Date = data.Date;
+                            detailData.DebitCode = data.DebitCode;
+                            detailData.CreditCode = data.ArrearCode;
+                            detailData.Amount = data.Amount;
+                            detailData.Remark = data.Summary;
+                            detailData = MoneyInput.GetData(detailData, dbcon);
+                            if (detailData != null)
+                                data.JournalId = detailData.Id;
+                            else
+                                Debug.Print("detailData id is null");
+                        }
 
                         if (cell.Column.Header.Equals("借CD")
                             || cell.Column.Header.Equals("未CD"))
@@ -494,6 +528,41 @@ namespace wpfHouseholdAccounts
 
             // 支払確定基準日の取得、設定
             //env.SetData("支払確定集計基準日", dispinfoAdjustDate.ToString("yyyy/MM/dd"));
+        }
+
+        private void btnUpdateRow_Click(object sender, RoutedEventArgs e)
+        {
+            List<ArrearInputData> list = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
+
+            int targetRow = 0;
+            try
+            {
+                targetRow = arrears.UpdateRow(list, dbcon);
+                // コミット完了後にOperateを0に戻す
+                foreach (ArrearInputData data in list)
+                {
+                    if (data.Operate != 0)
+                        data.Operate = 1;
+                }
+            }
+            catch (SqlException sqlex)
+            {
+                Debug.Write(sqlex);
+                MessageBox.Show("SqlException発生 " + sqlex.Message);
+                dbcon.RollbackTransaction();
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "btnUpdateRow_Click ");
+                Debug.Write(ex);
+                MessageBox.Show("Exception発生 " + ex.Message);
+                dbcon.RollbackTransaction();
+                return;
+            }
+
+            MessageBox.Show(targetRow + "件、更新されました");
+            return;
         }
     }
 }

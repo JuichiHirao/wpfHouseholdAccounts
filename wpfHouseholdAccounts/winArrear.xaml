@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:wpfHouseholdAccounts"
         mc:Ignorable="d"
         Title="未払" Height="876" Width="1370" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Window.Resources>
+        <local:RowColorConverter x:Key="rowColorConverter" />
+    </Window.Resources>
     <Grid Width="1350" Margin="0,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="250" />
@@ -16,6 +19,10 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="720" />
                 <ColumnDefinition Width="300" />
@@ -27,19 +34,18 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <WrapPanel Orientation="Horizontal">
                         <TextBlock Text="精算日" Margin="3,12,0,5" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="24" Background="White" />
                         <DatePicker Name="dtpickAdjustDate" Width="200" Margin="5,5,5,0" FontSize="24" SelectedDateChanged="dtpickAdjustDate_SelectedDateChanged" />
                     </WrapPanel>
-                    <TextBlock Text="償却金額" Margin="5,-5,5,5" VerticalAlignment="Bottom" FontSize="24" Grid.Row="1" />
-                    <TextBox Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" IsReadOnly="True" Background="LightGray" FontSize="24" Grid.Row="2" />
-                    <TextBlock Text="支払金額" Margin="5,-5,5,5" VerticalAlignment="Bottom" FontSize="24" Grid.Row="3" />
-                    <TextBox Name="txtPaymentAmount" Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="4" />
+                    <TextBlock Text="支払金額" Margin="5,-5,5,5" VerticalAlignment="Bottom" FontSize="24" Grid.Row="1" />
+                    <TextBox Name="txtPaymentAmount" Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="2" />
                 </Grid>
             </Border>
+            <Grid ColumnSpan="3" Row="1">
+                <Button Name="btnUpdateRow"  Content="更新" Width="100" Margin="5,5,5,5" HorizontalAlignment="Right" Click="btnUpdateRow_Click"></Button>
+            </Grid>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30" />
@@ -106,6 +112,11 @@
                     <Setter Property="Width" Value="20" />
                 </Style>
             </DataGrid.RowHeaderStyle>
+            <DataGrid.ItemContainerStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{Binding Operate, Converter={StaticResource rowColorConverter}}" />
+                </Style>
+            </DataGrid.ItemContainerStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="日付" Binding="{Binding DisplayDate, StringFormat='yyyy/MM/dd'}" Width="100" />
                 <DataGridTextColumn Header="借CD" Binding="{Binding DebitCode}" Width="80">

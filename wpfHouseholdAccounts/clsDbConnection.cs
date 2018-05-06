@@ -288,7 +288,7 @@ namespace wpfHouseholdAccounts
         /// <summary>
         /// 指定されたＳＱＬ文を実行する
         /// </summary>
-        public void execSqlCommand(string mySqlCommand)
+        public int execSqlCommand(string mySqlCommand)
         {
             SqlCommand dbcmd = dbcon.CreateCommand();
 
@@ -312,12 +312,14 @@ namespace wpfHouseholdAccounts
                 }
             }
 
-            dbcmd.ExecuteNonQuery();
+            int rowCnt = dbcmd.ExecuteNonQuery();
 
             parameters = null;
 
             if (dbtrans == null)
                 dbcon.Close();
+
+            return rowCnt;
         }
         public void SetParameter(SqlParameter[] myParams)
         {
