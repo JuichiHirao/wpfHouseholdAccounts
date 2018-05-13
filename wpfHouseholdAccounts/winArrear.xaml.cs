@@ -115,7 +115,7 @@ namespace wpfHouseholdAccounts
                 dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
                 dgridMoneyInput.CanUserAddRows = true;
                 dgridMoneyInput.CanUserDeleteRows = true;
-                dgridMoneyInput.Columns[5].Visibility = Visibility.Hidden;
+                dgridMoneyInput.Columns[7].Visibility = Visibility.Hidden;
                 btnRegister.Content = "登録";
             }
             else
@@ -126,7 +126,7 @@ namespace wpfHouseholdAccounts
                 dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.FullRow;
                 dgridMoneyInput.CanUserAddRows = false;
                 dgridMoneyInput.CanUserDeleteRows = false;
-                dgridMoneyInput.Columns[5].Visibility = Visibility.Visible;
+                dgridMoneyInput.Columns[7].Visibility = Visibility.Visible;
                 btnRegister.Content = "精算・精算取消";
 
                 SaveInputData("SetArrearUiSetting");
@@ -248,37 +248,40 @@ namespace wpfHouseholdAccounts
                         var txtbox = e.OldFocus as TextBox;
                         cell = txtbox.Parent as DataGridCell;
 
-                        // 各MakeupDetailDataのメソッドで入力値をチェックしてプロパティへ格納
-                        // 行変更のためのOperateも更新する
-                        if (cell.Column.Header.Equals("借CD")
-                            && !data.DebitCode.Equals(txtbox.Text))
-                            data.Operate = 1;
-                        else if (cell.Column.Header.Equals("未CD")
-                                 && !data.ArrearCode.Equals(txtbox.Text))
-                            data.Operate = 1;
-                        else if (cell.Column.Header.Equals("日付")
-                                 && !data.DisplayDate.Equals(txtbox.Text))
-                            data.Operate = 1;
-                        else if (cell.Column.Header.Equals("金額")
-                                 && !data.Amount.Equals(Convert.ToInt64(txtbox.Text)))
-                            data.Operate = 1;
-                        else if (cell.Column.Header.Equals("摘要"))
-                            data.Operate = 1;
-
-                        if (data.Operate == 1)
+                        if (!dispinfoIsToggleModeInput)
                         {
-                            // 行の更新をした時に、修正前の情報で金銭帳IDを取得する
-                            MakeupDetailData detailData = new MakeupDetailData();
-                            detailData.Date = data.Date;
-                            detailData.DebitCode = data.DebitCode;
-                            detailData.CreditCode = data.ArrearCode;
-                            detailData.Amount = data.Amount;
-                            detailData.Remark = data.Summary;
-                            detailData = MoneyInput.GetData(detailData, dbcon);
-                            if (detailData != null)
-                                data.JournalId = detailData.Id;
-                            else
-                                Debug.Print("detailData id is null");
+                            // 各MakeupDetailDataのメソッドで入力値をチェックしてプロパティへ格納
+                            // 行変更のためのOperateも更新する
+                            if (cell.Column.Header.Equals("借CD")
+                                && !data.DebitCode.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("未CD")
+                                     && !data.ArrearCode.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("日付")
+                                     && !data.DisplayDate.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("金額")
+                                     && !data.Amount.Equals(Convert.ToInt64(txtbox.Text)))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("摘要"))
+                                data.Operate = 1;
+
+                            if (data.Operate == 1)
+                            {
+                                // 行の更新をした時に、修正前の情報で金銭帳IDを取得する
+                                MakeupDetailData detailData = new MakeupDetailData();
+                                detailData.Date = data.Date;
+                                detailData.DebitCode = data.DebitCode;
+                                detailData.CreditCode = data.ArrearCode;
+                                detailData.Amount = data.Amount;
+                                detailData.Remark = data.Summary;
+                                detailData = MoneyInput.GetData(detailData, dbcon);
+                                if (detailData != null)
+                                    data.JournalId = detailData.Id;
+                                else
+                                    Debug.Print("detailData id is null");
+                            }
                         }
 
                         if (cell.Column.Header.Equals("借CD")
