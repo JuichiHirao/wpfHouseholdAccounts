@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Windows;
+using wpfHouseholdAccounts.arrear;
 
 namespace wpfHouseholdAccounts
 {
@@ -545,7 +546,7 @@ namespace wpfHouseholdAccounts
             }
         }
 
-        public void Register(string myArrearCode, List<ArrearInputData> myList, DbConnection myDbcon)
+        public void Register(List<ArrearInputData> myList, DbConnection myDbcon)
         {
             myDbcon.BeginTransaction("ARREARREGISTERTBEGIN");
 
@@ -557,7 +558,7 @@ namespace wpfHouseholdAccounts
                 // 各データの判別、処理
                 foreach (ArrearInputData data in myList)
                 {
-                    MoneyInputData inputData = new MoneyInputData(myArrearCode, data);
+                    MoneyInputData inputData = new MoneyInputData(data);
 
                     arrear.DatabaseDetailInsert(data, myDbcon);
                     MoneyInput.InsertDbData(inputData, myDbcon);
@@ -579,7 +580,46 @@ namespace wpfHouseholdAccounts
             // データベースの更新をコミットする
             myDbcon.CommitTransaction();
         }
-        public void Adjustment(string myArrearCode, DateTime myPaymentDate, List<ArrearInputData> myTargetList, DbConnection myDbcon)
+
+        public List<AdjustmentData> CalcrateAdjustment(List<ArrearInputData> myTargetList, Account myAccount)
+        {
+            List<AdjustmentData> arrearCodeList = new List<AdjustmentData>();
+
+            foreach (var target in myTargetList)
+            {
+                AdjustmentData findData = FindArrerCode(target.ArrearCode, arrearCodeList);
+                if (findData == null)
+                {
+                    AdjustmentData data = new AdjustmentData();
+                    data.AccountKind = myAccount.getAccountKind(target.ArrearCode);
+                    if (data.AccountKind == null || data.AccountKind.Length <= 0)
+                        throw new BussinessException("対象の未払い科目コードがマスタに存在しない");
+                    if (data.AccountKind.Equals(Account.KIND_DEPT_APPEAR))
+                        throw new BussinessException("過去の形式の未払科目コードが存在します");
+                    data.Code = target.ArrearCode;
+                    data.Amount = target.Amount;
+                    arrearCodeList.Add(data);
+                }
+                else
+                    findData.Amount = findData.Amount + target.Amount;
+            }
+
+            return arrearCodeList;
+        }
+
+        public AdjustmentData FindArrerCode(string myCode, List<AdjustmentData> myList)
+        {
+            if (myList.Count <= 0)
+                return null;
+
+            foreach (var data in myList)
+                if (data.Code.Equals(myCode))
+                    return data;
+
+            return null;
+        }
+
+        public void Adjustment(List<AdjustmentData> myAdjustmentList, DateTime myPaymentDate, List<ArrearInputData> myTargetList, DbConnection myDbcon)
         {
             myDbcon.BeginTransaction("MONEYADJUSTMENTBEGIN");
 
@@ -588,25 +628,27 @@ namespace wpfHouseholdAccounts
                 MethodPayment payment = new MethodPayment();
                 Arrear arrear = new Arrear();
 
-                int total = 0;
-
-                // 引数で選択データが精算・取消対象なので全て処理
                 foreach (ArrearInputData data in myTargetList)
                 {
                     // 未払明細の更新
                     arrear.DatabaseDetailUpdate(data, myPaymentDate, myDbcon);
-                    total += Convert.ToInt32(data.Amount);
                 }
 
-                // 支払確定挿入用にMoneyInputDataの生成
-                MoneyInputData indata = new MoneyInputData();
+                foreach (var adjustmentData in myAdjustmentList)
+                {
+                    if (adjustmentData.AccountKind == Account.KIND_PAYMENT_ARREAR)
+                    {
+                        // 支払確定挿入用にMoneyInputDataの生成
+                        MoneyInputData indata = new MoneyInputData();
 
-                indata.Date = myPaymentDate;
-                indata.DebitCode = myArrearCode;
-                indata.CreditCode = Account.CODE_CASH;    // 現金
-                indata.Amount = total;
+                        indata.Date = myPaymentDate;
+                        indata.DebitCode = adjustmentData.Code;
+                        indata.CreditCode = Account.CODE_CASH;    // 現金
+                        indata.Amount = adjustmentData.Amount;
 
-                payment.DatabaseDecisionInsert(myArrearCode, indata, myDbcon);
+                        payment.DatabaseDecisionInsert(adjustmentData.Code, indata, myDbcon);
+                    }
+                }
 
                 myDbcon.CommitTransaction();
             }
@@ -621,5 +663,49 @@ namespace wpfHouseholdAccounts
                 throw errbsn;
             }
         }
+
+        public int UpdateRow(List<ArrearInputData> myTargetList, DbConnection myDbcon)
+        {
+            myDbcon.BeginTransaction("MONEYADJUSTMENTBEGIN");
+
+            int cnt = 0;
+            try
+            {
+                MethodPayment payment = new MethodPayment();
+                Arrear arrear = new Arrear();
+
+                foreach (ArrearInputData data in myTargetList)
+                {
+                    if (data.Operate == 1)
+                    {
+                        // 未払明細の更新
+                        arrear.DatabaseDetailUpdate(data, data.PaymentDate, myDbcon);
+
+                        MoneyInputData inputData = new MoneyInputData(data);
+                        int updateRow = MoneyInput.UpdateDb(inputData, "金銭帳", myDbcon);
+
+                        if (updateRow <= 0 || updateRow > 1)
+                            throw new BussinessException("更新される行数が違っています " + updateRow);
+
+                        cnt++;
+                    }
+                }
+
+                myDbcon.CommitTransaction();
+            }
+            catch (SqlException errsql)
+            {
+                myDbcon.RollbackTransaction();
+                throw errsql;
+            }
+            catch (BussinessException errbsn)
+            {
+                myDbcon.RollbackTransaction();
+                throw errbsn;
+            }
+
+            return cnt;
+        }
+
     }
 }

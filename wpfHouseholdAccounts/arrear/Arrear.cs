@@ -52,7 +52,7 @@ namespace wpfHouseholdAccounts
             SqlExecCommand = SqlExecCommand + "     ( 年月日, 未払コード, 借方コード, 支払コード, 金額, 摘要, 支払日, USED_COMPANY_ARREAR ) ";
             SqlExecCommand = SqlExecCommand + "    SELECT 年月日,未払コード,借方コード, @PaymentCode, 金額,摘要,支払予定日, USED_COMPANY_ARREAR ";
             SqlExecCommand = SqlExecCommand + "        FROM 未払明細  ";
-            SqlExecCommand = SqlExecCommand + "    WHERE 未払コード = @ArrearCode AND 支払予定日 = @AdjustmentDate ";
+            SqlExecCommand = SqlExecCommand + "    WHERE 支払予定日 = @AdjustmentDate ";
 
             SqlCommand scmd = new SqlCommand(SqlExecCommand, myDbCon.getSqlConnection());
             DataTable dtSaraly = new DataTable();
@@ -61,10 +61,6 @@ namespace wpfHouseholdAccounts
 
             SqlParameter sqlParam = new SqlParameter("@PaymentCode", SqlDbType.VarChar);
             sqlParam.Value = myPaymentCode;
-            sqlparams.Add(sqlParam);
-
-            sqlParam = new SqlParameter("@ArrearCode", SqlDbType.VarChar);
-            sqlParam.Value = myArrearCode;
             sqlparams.Add(sqlParam);
 
             sqlParam = new SqlParameter("@AdjustmentDate", SqlDbType.DateTime);
@@ -439,7 +435,7 @@ namespace wpfHouseholdAccounts
                 myDbCon = new DbConnection();
 
             mySqlCommand = "DELETE FROM 未払明細 ";
-            mySqlCommand = mySqlCommand + "WHERE 未払コード = '" + myArrearCode + "' AND 支払予定日 = '" + myPaymentScheduleDate.ToShortDateString() + "' ";
+            mySqlCommand = mySqlCommand + "WHERE 支払予定日 = '" + myPaymentScheduleDate.ToShortDateString() + "' ";
 
             myDbCon.execSqlCommand(mySqlCommand);
 

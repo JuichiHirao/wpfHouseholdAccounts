@@ -13,7 +13,24 @@ namespace wpfHouseholdAccounts
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int _Operate;
+        public int Operate
+        {
+            get
+            {
+                return _Operate;
+            }
+            set
+            {
+                _Operate = value;
+                NotifyPropertyChanged("Operate");
+            }
+        }
+
         public int Id { get; set; }
+
+        public int JournalId { get; set; }
+
         private string _DisplayDate;
         public string DisplayDate
         {
@@ -110,6 +127,7 @@ namespace wpfHouseholdAccounts
                 NotifyPropertyChanged("DebitName");
             }
         }
+
         private string _ArrearCode;
         public string ArrearCode
         {
@@ -159,6 +177,8 @@ namespace wpfHouseholdAccounts
             DebitCode = "";
             Amount = 0;
             Summary = "";
+
+            _Operate = 0;
         }
 
         private void NotifyPropertyChanged(String info)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -95,6 +96,13 @@ namespace wpfHouseholdAccounts
             SetToggleMode(((ToggleButton)sender).Content);
 
             SetArrearUiSetting();
+
+            int idx = 0;
+            foreach (DataGridColumn col in dgridMoneyInput.Columns)
+            {
+                Debug.Print("col[" + idx + "].ActualWidth [" + col.ActualWidth + "]");
+                idx++;
+            }
         }
         private void SetArrearUiSetting()
         {
@@ -107,7 +115,7 @@ namespace wpfHouseholdAccounts
                 dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.Cell;
                 dgridMoneyInput.CanUserAddRows = true;
                 dgridMoneyInput.CanUserDeleteRows = true;
-                dgridMoneyInput.Columns[5].Visibility = Visibility.Hidden;
+                dgridMoneyInput.Columns[7].Visibility = Visibility.Hidden;
                 btnRegister.Content = "登録";
             }
             else
@@ -118,7 +126,7 @@ namespace wpfHouseholdAccounts
                 dgridMoneyInput.SelectionUnit = DataGridSelectionUnit.FullRow;
                 dgridMoneyInput.CanUserAddRows = false;
                 dgridMoneyInput.CanUserDeleteRows = false;
-                dgridMoneyInput.Columns[5].Visibility = Visibility.Visible;
+                dgridMoneyInput.Columns[7].Visibility = Visibility.Visible;
                 btnRegister.Content = "精算・精算取消";
 
                 SaveInputData("SetArrearUiSetting");
@@ -149,22 +157,10 @@ namespace wpfHouseholdAccounts
         private void btnRegister_Click(object sender, RoutedEventArgs e)
         {
             List<ArrearInputData> listInputData = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
-            TargetAccountData accountData = (TargetAccountData)dgridArrearTarget.SelectedItem;
 
             if (listInputData == null || listInputData.Count <= 0)
             {
                 MessageBox.Show("登録対象のデーターが存在しません");
-                return;
-            }
-            if (accountData == null)
-            {
-                MessageBox.Show("未払対象の項目が選択されていません");
-                return;
-            }
-            string name = account.getName(accountData.Code);
-            if (name == null || name.Length <= 0)
-            {
-                MessageBox.Show("選択されている未払項目が不正です");
                 return;
             }
             if (!btnRegister.Content.Equals("登録"))
@@ -187,24 +183,13 @@ namespace wpfHouseholdAccounts
                 }
             }
 
-            foreach(ArrearInputData data in (List<ArrearInputData>)dgridMoneyInput.ItemsSource)
-            {
-                name = account.getName(data.DebitCode);
-                if (name == null || name.Length <= 0)
-                {
-                    MessageBox.Show("登録されていないコード[" + data.DebitCode + "]");
-                    return;
-                }
-                data.ArrearCode = accountData.Code;
-            }
-
             try
             {
                 ArrearInput.CheckData(listInputData, account);
 
                 if (tbtnModeInput.IsChecked == true)
                 {
-                    arrears.Register(accountData.Code, (List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
+                    arrears.Register((List<ArrearInputData>)dgridMoneyInput.ItemsSource, dbcon);
 
                     // 登録した入力データをDataGridから削除
                     listInputData.Clear();
@@ -216,7 +201,9 @@ namespace wpfHouseholdAccounts
                     foreach (ArrearInputData data in dgridMoneyInput.SelectedItems)
                         list.Add(data);
 
-                    arrears.Adjustment(accountData.Code, dispinfoAdjustDate, list, dbcon);
+                    List<AdjustmentData> listAdjustmentData = arrears.CalcrateAdjustment(list, account);
+
+                    arrears.Adjustment(listAdjustmentData, dispinfoAdjustDate, list, dbcon);
 
                     // 支払予定日に日付を設定
                     foreach(ArrearInputData data in list)
@@ -261,10 +248,49 @@ namespace wpfHouseholdAccounts
                         var txtbox = e.OldFocus as TextBox;
                         cell = txtbox.Parent as DataGridCell;
 
-                        if (cell.Column.Header.Equals("借CD"))
+                        if (!dispinfoIsToggleModeInput)
+                        {
+                            // 各MakeupDetailDataのメソッドで入力値をチェックしてプロパティへ格納
+                            // 行変更のためのOperateも更新する
+                            if (cell.Column.Header.Equals("借CD")
+                                && !data.DebitCode.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("未CD")
+                                     && !data.ArrearCode.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("日付")
+                                     && !data.DisplayDate.Equals(txtbox.Text))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("金額")
+                                     && !data.Amount.Equals(Convert.ToInt64(txtbox.Text)))
+                                data.Operate = 1;
+                            else if (cell.Column.Header.Equals("摘要"))
+                                data.Operate = 1;
+
+                            if (data.Operate == 1)
+                            {
+                                // 行の更新をした時に、修正前の情報で金銭帳IDを取得する
+                                MakeupDetailData detailData = new MakeupDetailData();
+                                detailData.Date = data.Date;
+                                detailData.DebitCode = data.DebitCode;
+                                detailData.CreditCode = data.ArrearCode;
+                                detailData.Amount = data.Amount;
+                                detailData.Remark = data.Summary;
+                                detailData = MoneyInput.GetData(detailData, dbcon);
+                                if (detailData != null)
+                                    data.JournalId = detailData.Id;
+                                else
+                                    Debug.Print("detailData id is null");
+                            }
+                        }
+
+                        if (cell.Column.Header.Equals("借CD")
+                            || cell.Column.Header.Equals("未CD"))
                         {
                             if (cell.Column.Header.Equals("借CD"))
                                 data.DebitCode = txtbox.Text;
+                            if (cell.Column.Header.Equals("未CD"))
+                                data.ArrearCode = txtbox.Text;
 
                             lstAccountExpense.Visibility = System.Windows.Visibility.Collapsed;
                             lstAccountDetail.Visibility = System.Windows.Visibility.Collapsed;
@@ -323,6 +349,11 @@ namespace wpfHouseholdAccounts
                     if (cell.Column.Header.Equals("借CD"))
                     {
                         data.DebitName = account.getName(data.DebitCode);
+                        _logger.Debug("dgridMoneyInput_LostKeyboardFocus [" + cell.Column.Header + "]  DebitCode [" + data.DebitCode + "]   DebitName [" + data.DebitName + "]");
+                    }
+                    if (cell.Column.Header.Equals("未CD"))
+                    {
+                        data.ArrearName = account.getName(data.ArrearCode);
                         _logger.Debug("dgridMoneyInput_LostKeyboardFocus [" + cell.Column.Header + "]  DebitCode [" + data.DebitCode + "]   DebitName [" + data.DebitName + "]");
                     }
                 }
@@ -433,7 +464,8 @@ namespace wpfHouseholdAccounts
                     return;
 
                 _logger.Debug("GotKeyboardFocus cell.Column.Header [" + cell.Column.Header + "]");
-                if (cell.Column.Header.Equals("借CD"))
+                if (cell.Column.Header.Equals("借CD")
+                    || cell.Column.Header.Equals("未CD"))
                 {
                     lstAccountExpense.Visibility = System.Windows.Visibility.Visible;
                     lstAccountDetail.Visibility = System.Windows.Visibility.Visible;
@@ -499,6 +531,41 @@ namespace wpfHouseholdAccounts
 
             // 支払確定基準日の取得、設定
             //env.SetData("支払確定集計基準日", dispinfoAdjustDate.ToString("yyyy/MM/dd"));
+        }
+
+        private void btnUpdateRow_Click(object sender, RoutedEventArgs e)
+        {
+            List<ArrearInputData> list = (List<ArrearInputData>)dgridMoneyInput.ItemsSource;
+
+            int targetRow = 0;
+            try
+            {
+                targetRow = arrears.UpdateRow(list, dbcon);
+                // コミット完了後にOperateを0に戻す
+                foreach (ArrearInputData data in list)
+                {
+                    if (data.Operate != 0)
+                        data.Operate = 1;
+                }
+            }
+            catch (SqlException sqlex)
+            {
+                Debug.Write(sqlex);
+                MessageBox.Show("SqlException発生 " + sqlex.Message);
+                dbcon.RollbackTransaction();
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "btnUpdateRow_Click ");
+                Debug.Write(ex);
+                MessageBox.Show("Exception発生 " + ex.Message);
+                dbcon.RollbackTransaction();
+                return;
+            }
+
+            MessageBox.Show(targetRow + "件、更新されました");
+            return;
         }
     }
 }

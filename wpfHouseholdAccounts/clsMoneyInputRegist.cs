@@ -133,6 +133,15 @@ namespace wpfHouseholdAccounts
                         arrear.Adjustment(inputdata, dbcon);
                     }
 
+                    // 科目種別が「負債：未払xxx」の場合
+                    if (DebitKind == Account.KIND_PAYMENT_ARREAR
+                        || CreditKind == Account.KIND_PAYMENT_ARREAR)
+                    {
+                        Arrear arrear = new Arrear();
+
+                        arrear.Adjustment(inputdata, dbcon);
+                    }
+
                     // 科目種別が「負債：未払」の場合
                     if (DebitKind == Account.KIND_ASSETS_COMPANY_ARREAR)
                     {

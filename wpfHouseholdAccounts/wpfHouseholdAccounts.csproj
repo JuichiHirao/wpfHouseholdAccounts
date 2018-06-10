@@ -63,6 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="arrear\AdjustmentData.cs" />
     <Compile Include="arrear\ArrearInput.cs" />
     <Compile Include="arrear\TargetAccount.cs" />
     <Compile Include="clsAccount.cs" />

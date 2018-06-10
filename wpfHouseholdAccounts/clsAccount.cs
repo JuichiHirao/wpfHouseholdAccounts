@@ -23,6 +23,8 @@ namespace wpfHouseholdAccounts
 		public const string	KIND_DEPT			= "20";		// 負債
 		public const string	KIND_DEPT_LOAN		= "21";		// 負債：借入
 		public const string	KIND_DEPT_APPEAR	= "22";		// 負債：未払
+        public const string KIND_PAYMENT_ARREAR = "2210";   // 負債：支払対象の未払
+        public const string KIND_NO_PAYMENT_ARRER = "2211"; // 負債：支払対象外の未払
 		public const string	KIND_PROFIT			= "30";		// 収益
         public const string KIND_COMPANY_EXPENSE        = "31";		// 会社経費：現金
         public const string KIND_COMPANY_EXPENSE_BANK   = "32";		// 会社経費：預金

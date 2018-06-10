@@ -384,7 +384,7 @@ namespace wpfHouseholdAccounts
 
 			return;
         }
-        public static void UpdateDb(MoneyInputData myInputData, string myTableName, DbConnection myDbCon)
+        public static int UpdateDb(MoneyInputData myInputData, string myTableName, DbConnection myDbCon)
         {
             DbConnection dbcon;
             string mySqlCommand = "";
@@ -423,9 +423,7 @@ namespace wpfHouseholdAccounts
             sqlparams[5].Value = myInputData.id;
             dbcon.SetParameter(sqlparams);
 
-            myDbCon.execSqlCommand(mySqlCommand);
-
-            return;
+            return myDbCon.execSqlCommand(mySqlCommand);
         }
         public static void UpdateDbUsedCompanyArrear(int myId, int myFlag, DbConnection myDbCon)
         {
@@ -636,7 +634,7 @@ namespace wpfHouseholdAccounts
                 dbcon = new DbConnection();
 
             int paramCnt = 0;
-            mySqlCommand = "SELECT 金銭帳ＩＤ, 年月日, 借方, 貸方, 金額, 摘要, USED_COMPANY_ARREAR, CREATE_DATE " 
+                    mySqlCommand = "SELECT 金銭帳ＩＤ, 年月日, 借方, 貸方, 金額, 摘要, USED_COMPANY_ARREAR, CREATE_DATE " 
                 + "FROM 金銭帳 ";
             mySqlCommand = mySqlCommand + "WHERE ";
 
