@@ -2347,8 +2347,8 @@ namespace wpfHouseholdAccounts
             lborderCsvOut.Visibility = System.Windows.Visibility.Visible;
             ColViewListInputDataDetail.Filter = null;
 
-            datepCsvOutFrom.Text = "2016/6/1";
-            datepCsvOutTo.Text = "2017/5/31";
+            datepCsvOutFrom.Text = "2017/6/1";
+            datepCsvOutTo.Text = "2018/5/31";
         }
 
         private void btnCsvOutExecute_Click(object sender, RoutedEventArgs e)
