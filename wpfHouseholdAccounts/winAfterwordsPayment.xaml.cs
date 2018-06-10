@@ -526,7 +526,7 @@ namespace wpfHouseholdAccounts
             }
 
 
-            // 会社仕訳の場合
+            // 会社未払仕訳の場合
             if (chkCompanyJournal.IsChecked != null && (bool)chkCompanyJournal.IsChecked)
             {
                 MoneyInputData inputData = new MoneyInputData();
@@ -540,6 +540,23 @@ namespace wpfHouseholdAccounts
                 MoneyInputRegist.Execute(inputData, account, new DbConnection());
 
                 MessageBox.Show("正常に金銭帳と未払明細へ登録されました");
+                return;
+            }
+
+            // 会社仕訳の場合
+            if (chkCompanyJournalOnly.IsChecked != null && (bool)chkCompanyJournalOnly.IsChecked)
+            {
+                MoneyInputData inputData = new MoneyInputData();
+
+                inputData.Date = dtDecision;
+                inputData.DebitCode = txtDebitCode.Text;
+                inputData.CreditCode = txtCreditCode.Text;
+                inputData.Amount = amount;
+                inputData.Remark = txtRemark.Text;
+
+                MoneyInputRegist.ExecuteJournalOnly(inputData, account, new DbConnection());
+
+                MessageBox.Show("正常に金銭帳に登録されました");
                 return;
             }
 
