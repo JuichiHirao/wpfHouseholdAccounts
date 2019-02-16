@@ -591,6 +591,7 @@ namespace wpfHouseholdAccounts
                         inputdata.CreditCode = data.CreditCode;
                         inputdata.CreditName = account.getName(data.CreditCode);
                         inputdata.Amount = data.Amount;
+                        inputdata.Remark = data.Remark;
 
                         listData.Add(inputdata);
 

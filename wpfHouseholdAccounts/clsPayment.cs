@@ -104,7 +104,7 @@ namespace wpfHouseholdAccounts
             SelectCommand = SelectCommand + "        ON 支払確定.貸方 = C.科目コード ";
             SelectCommand = SelectCommand + "    GROUP BY 支払日, 支払確定.借入コード, A.科目名, 借方, B.科目名, 貸方, C.科目名 ";
              */
-            SelectCommand = "SELECT 確定ＩＤ, 支払日, 支払確定.借入コード, A.科目名, 借方, B.科目名, 貸方, C.科目名, 金額 ";
+            SelectCommand = "SELECT 確定ＩＤ, 支払日, 支払確定.借入コード, A.科目名, 借方, B.科目名, 貸方, C.科目名, 金額, 摘要 ";
             SelectCommand = SelectCommand + "    FROM 支払確定 INNER JOIN 科目 AS A ";
             SelectCommand = SelectCommand + "        ON 支払確定.借入コード = A.科目コード ";
             SelectCommand = SelectCommand + "      INNER JOIN 科目 AS B ";
@@ -135,6 +135,7 @@ namespace wpfHouseholdAccounts
                     data.CreditCode = DbExportCommon.GetDbString(reader, 6);
                     data.CreditName = DbExportCommon.GetDbString(reader, 7);
                     data.Amount = DbExportCommon.GetDbMoney(reader, 8);
+                    data.Remark = DbExportCommon.GetDbString(reader, 9);
 
                     listPayment.Add(data);
                 }
