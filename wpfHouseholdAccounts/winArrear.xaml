@@ -144,7 +144,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="未払科目名" Binding="{Binding ArrearName}" IsReadOnly="True" MaxWidth="200">
+                <DataGridTextColumn Header="未払科目名" Binding="{Binding ArrearName}" IsReadOnly="True" MaxWidth="300">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Margin" Value="3,3,3,1" />

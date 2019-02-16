@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using NLog;
 
 namespace wpfHouseholdAccounts
@@ -298,6 +299,49 @@ namespace wpfHouseholdAccounts
                 myDbCon.RollbackTransaction();
                 throw err;
             }
+            // データベースの更新をコミットする
+            myDbCon.CommitTransaction();
+
+            return;
+        }
+
+        /// <summary>
+        /// 後日確認入力の会社仕訳の登録用
+        /// </summary>
+        /// <param name="myInputData"></param>
+        /// <param name="myAccount"></param>
+        /// <param name="myDbCon"></param>
+        public static void ExecuteJournalOnly(MoneyInputData myInputData, Account myAccount, DbConnection myDbCon)
+        {
+            if (myDbCon == null)
+                myDbCon = new DbConnection();
+
+            // データベース：トランザクションを開始
+            myDbCon.BeginTransaction("COMPANY_JOURNAL_BEGIN");
+
+            try
+            {
+                MoneyInput.InsertDbData(myInputData, myDbCon);
+            }
+            catch (SqlException sqlex)
+            {
+                _logger.Error(sqlex);
+                Debug.Write(sqlex);
+                if (!myDbCon.isTransaction())
+                    myDbCon.RollbackTransaction();
+                throw new BussinessException("SqlException発生 Arrears.Resception " + sqlex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                Debug.Write(ex);
+                if (!myDbCon.isTransaction())
+                    myDbCon.RollbackTransaction();
+                throw new BussinessException("Exception発生 Arrears.Resception " + ex.Message);
+            }
+
+            if (!myDbCon.isTransaction())
+                myDbCon.CommitTransaction();
             // データベースの更新をコミットする
             myDbCon.CommitTransaction();
 
