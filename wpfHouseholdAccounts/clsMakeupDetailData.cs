@@ -65,13 +65,22 @@ namespace wpfHouseholdAccounts
         {
             bool bResult = false;
 
+            if (DebitCode.Equals("12011") && CompanyArrearsDetailId > 0)
+                return false;
+
             if (CreditCode.IndexOf("31") == 0)
+                bResult = true;
+            else if (DebitCode.Equals("30402")) // 消費税仮受を収入への振替
+                bResult = true;
+            else if (DebitCode.Equals("13001")) // 売掛金、貸方は売上、消費税仮受
                 bResult = true;
             else if (DebitCode.Equals("10101") || CreditCode.Equals("10101"))
                 bResult = true;
             else if (DebitCode.Equals("10209") || CreditCode.Equals("10209"))
                 bResult = true;
             else if (DebitCode.Equals("21002") || CreditCode.Equals("21002"))
+                bResult = true;
+            else if (CreditCode.Equals("53002"))
                 bResult = true;
             else if (CreditCode.Equals("20801"))
             {

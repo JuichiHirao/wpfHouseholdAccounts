@@ -500,6 +500,7 @@ namespace wpfHouseholdAccounts
 
             }
 
+            long targetTotal = 0, notTargetTotal = 0;
             if (dgridMoneyInput.SelectedItems.Count > 1)
             {
                 foreach (object o in dgridMoneyInput.SelectedItems)
@@ -513,12 +514,25 @@ namespace wpfHouseholdAccounts
                     {
                         _logger.Error(ex, "dgridMoneyInput_SelectionChanged ");
                     }
+
                     if (data != null)
+                    {
                         seltotal += data.Amount;
+
+                        //public const string KIND_PAYMENT_ARREAR = "2210";   // 負債：支払対象の未払
+                        //public const string KIND_NO_PAYMENT_ARRER = "2211"; // 負債：支払対象外の未払
+                        string code = account.getAccountKind(data.ArrearCode);
+
+                        if (code.Equals(Account.KIND_PAYMENT_ARREAR))
+                            targetTotal += data.Amount;
+                        else
+                            notTargetTotal += data.Amount;
+                    }
                 }
             }
 
-            txtbSelectedAddup.Text = String.Format("選択合計 \\" + "{0:###,###,##0} / {0:###,###,##0}", seltotal, total);
+            // txtbSelectedAddup.Text = String.Format("選択合計 " + "{0:###,###,##0} / {0:###,###,##0}", seltotal, total);
+            txtbSelectedAddup.Text = String.Format("支払対象合計 " + "{0:###,###,##0} (対象外 {1:###,###,##0}) 選択合計 {2:###,###,##0}   合計 {3:###,###,##0}", targetTotal, notTargetTotal, seltotal, total);
         }
 
         private void dtpickAdjustDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)

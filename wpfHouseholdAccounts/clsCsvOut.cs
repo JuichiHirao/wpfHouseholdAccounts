@@ -78,9 +78,28 @@ namespace wpfHouseholdAccounts
 
                 if (myData.CreditCode == "30401")
                     dataCsv.CreditName = "売掛金";
+                if (myData.DebitCode == "13001")
+                {
+                    dataCsv.DebitName = "売掛金";
+                    if (myData.CreditCode.IndexOf("320") == 0)
+                    {
+                        dataCsv.CreditName = "売上高";
+                    }
+                    if (myData.CreditCode.IndexOf("30402") == 0)
+                    {
+                        //dataCsv.CreditName = "仮受消費税";
+                        dataCsv.CreditName = "仮受金";
+                    }
+                }
 
-                if (myData.CreditCode == "30402")
-                    dataCsv.CreditName = "仮受消費税";
+                if (myData.DebitCode == "30402")
+                {
+                    dataCsv.DebitName = "売掛金";
+                    if (myData.CreditCode == "30300")
+                    {
+                        dataCsv.CreditName = "雑収入";
+                    }
+                }
 
                 if (myData.DebitCode.IndexOf("431") == 0)
                     dataCsv.DebitName = "研究開発費";
@@ -110,7 +129,13 @@ namespace wpfHouseholdAccounts
                     dataCsv.DebitName = "賃借料";
                     dataCsv.Remark = "MacbookPro";
                 }
-                
+
+                if (myData.DebitCode.IndexOf("501") == 0)
+                {
+                    dataCsv.DebitName = "雑費";
+                    dataCsv.Remark = myData.Remark;
+                }
+
                 if (myData.DebitCode == "53003")
                 {
                     dataCsv.DebitName = "雑給";
@@ -122,6 +147,11 @@ namespace wpfHouseholdAccounts
                 if (myData.DebitCode == "53002")
                 {
                     dataCsv.DebitName = "租税公課";
+                    dataCsv.Remark = "平尾充一";
+                }
+                if (myData.CreditCode == "53002")
+                {
+                    dataCsv.CreditName = "源泉税等預り金";
                     dataCsv.Remark = "平尾充一";
                 }
                 if (myData.DebitCode == "51300")
@@ -171,6 +201,12 @@ namespace wpfHouseholdAccounts
                         dataCsv.Remark = "不明";
                 }
 
+                // 仕訳の取消（金額の返却）
+                if (myData.CreditCode.IndexOf("4") == 0)
+                {
+                    dataCsv.CreditName = "雑費";
+                    dataCsv.Remark = "返却";
+                }
                 if (myData.CreditCode == "20801")
                 {
                     dataCsv.CreditName = "未払金";
