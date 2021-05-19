@@ -11,7 +11,7 @@ namespace wpfHouseholdAccounts
 	/// </summary>
 	public class BankAccount
 	{
-		BankAccountData[] ArrBankData = new BankAccountData[10];
+		BankAccountData[] ArrBankData = new BankAccountData[20];
 		public int	BankCount = 0;	// 配列に格納された件数
 		private DateTime	RegistDate	= new DateTime();
 
@@ -30,7 +30,7 @@ namespace wpfHouseholdAccounts
 			// 登録日の設定（引数が未指定）
 			RegistDate = System.DateTime.Now;
 
-			for( int iArrayIndex = 0; iArrayIndex < 10; iArrayIndex++ )
+			for( int iArrayIndex = 0; iArrayIndex < ArrBankData.Length; iArrayIndex++ )
 			{
 				ArrBankData[iArrayIndex] = new BankAccountData();
 			}
@@ -46,7 +46,7 @@ namespace wpfHouseholdAccounts
 			// 登録日の設定
 			RegistDate = myDateTime;
 
-			for( int iArrayIndex = 0; iArrayIndex < 10; iArrayIndex++ )
+			for( int iArrayIndex = 0; iArrayIndex < ArrBankData.Length; iArrayIndex++ )
 			{
 				ArrBankData[iArrayIndex] = new BankAccountData();
 			}
@@ -121,7 +121,7 @@ namespace wpfHouseholdAccounts
 				myReader = myCommand.ExecuteReader();
 
 				int iArrayIndex;
-				for( iArrayIndex = 0; iArrayIndex < 10; iArrayIndex++ )
+				for( iArrayIndex = 0; iArrayIndex < ArrBankData.Length; iArrayIndex++ )
 				{
 					// 次のレコードがない場合はループを抜ける
 					if (!myReader.Read())
@@ -132,7 +132,7 @@ namespace wpfHouseholdAccounts
 					ArrBankData[iArrayIndex].BankAccountName = myReader.GetString( 1 );
 					ArrBankData[iArrayIndex].BankAccountKind = myReader.GetString( 2 );
 				}
-				BankCount = iArrayIndex;
+				BankCount = iArrayIndex + 1;
 
 				myReader.Close();
 
