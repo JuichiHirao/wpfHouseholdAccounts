@@ -108,6 +108,11 @@ namespace wpfHouseholdAccounts
                 {
                     dataCsv.DebitName = "役員報酬";
                     dataCsv.Remark = "平尾充一";
+
+                    if (myData.CreditCode == "22011")
+                    {
+                        dataCsv.CreditName = "未払金";
+                    }
                 }
                 if (myData.DebitCode == "53102")
                 {
@@ -311,6 +316,11 @@ namespace wpfHouseholdAccounts
                         dataCsv.CreditName = "未払金";
                     }
                 }
+                else
+                {
+                    if (dataCsv.CreditName == null || dataCsv.CreditName.Length <= 0)
+                        dataCsv.CreditName = "未払金";
+                }
 
                 if (dataCsv.Remark == null || dataCsv.Remark.Length == 0)
                     dataCsv.Remark = myData.Remark;
@@ -364,6 +374,16 @@ namespace wpfHouseholdAccounts
                     dataCsv.DebitName = "研究開発費";
                 else if (myData.DebitCode.IndexOf("60") == 0)
                     dataCsv.DebitName = "研究開発費";
+                else if (myData.DebitCode == "53001")
+                {
+                    dataCsv.DebitName = "役員報酬";
+                    myData.Remark = "平尾充一";
+
+                    if (myData.CreditCode == "22011")
+                    {
+                        dataCsv.CreditName = "未払金";
+                    }
+                }
                 else if (myData.DebitCode == "23201")
                 {
                     dataCsv.DebitName = "福利厚生費";
@@ -388,7 +408,8 @@ namespace wpfHouseholdAccounts
                 {
                     dataCsv.Remark = myData.Remark;
                 }
-                dataCsv.CreditName = "未払金";
+                if (dataCsv.CreditName == null || dataCsv.CreditName.Length <= 0)
+                    dataCsv.CreditName = "未払金";
             }
 
             string line = dataCsv.Date.ToString("yyyy/MM/dd") + "," + dataCsv.DebitName + ",\"" + dataCsv.Amount + "\",," + dataCsv.CreditName + ",\"" + dataCsv.Amount + "\",," + dataCsv.Remark;

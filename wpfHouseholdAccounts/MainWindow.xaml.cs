@@ -1220,6 +1220,7 @@ namespace wpfHouseholdAccounts
             string strFromDate = "";
             string strToDate = "";
 
+            /*
             // グリッドビューから選択されていない場合は最近の給料日を設定
             mySqlCommand = "SELECT CONVERT( varchar(10), MAX(年月日),111) ";
             mySqlCommand = mySqlCommand + "    FROM " + dispinfoTargetTableName;
@@ -1234,6 +1235,21 @@ namespace wpfHouseholdAccounts
 
             ConditionFromDate = Convert.ToDateTime(strFromDate);
             ConditionToDate = Convert.ToDateTime(strToDate);
+             */
+
+            //本日日付
+            DateTime today = DateTime.Today;
+
+            //月初め
+            ConditionFromDate = new DateTime(today.Year, today.Month, 1);
+            //ConditionFromDate = new DateTime(2020, 1, 1);
+
+            //月終わり
+            ConditionToDate = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1);
+            //ConditionToDate = new DateTime(2020, 12, 31);
+            //ConditionFromDate = new DateTime(2020, 8, 30);
+            //ConditionToDate = new DateTime(2020, 8, 31);
+
         }
 
         /// <summary>
@@ -2177,6 +2193,9 @@ namespace wpfHouseholdAccounts
                     dispctrlMakeupScopeDate[0] = matchDt;
                     dispctrlMakeupScopeDate[1] = selDt.AddDays(-1);
                 }
+
+                dispctrlMakeupScopeDate[0] = ConditionFromDate.AddMonths(-1);
+                dispctrlMakeupScopeDate[1] = dispctrlMakeupScopeDate[0].Value.AddMonths(1).AddDays(-1);
             }
             else
             {
@@ -2211,13 +2230,17 @@ namespace wpfHouseholdAccounts
 
                     dispctrlMakeupScopeDate[1] = matchDt.AddDays(-1);
                 }
+                dispctrlMakeupScopeDate[0] = ConditionFromDate.AddMonths(1);
+                dispctrlMakeupScopeDate[1] = dispctrlMakeupScopeDate[0].Value.AddMonths(1).AddDays(-1);
             }
 
+            /*
             if (dispinfoMakeupWayKind != MAKEUPWAY_KIND_SZE)
             {
                 if (matchDt.Year == 1900)
                     return;
             }
+             */
 
             ConditionFromDate = dispctrlMakeupScopeDate[0].Value;
             ConditionToDate = dispctrlMakeupScopeDate[1].Value;
@@ -2347,8 +2370,10 @@ namespace wpfHouseholdAccounts
             lborderCsvOut.Visibility = System.Windows.Visibility.Visible;
             ColViewListInputDataDetail.Filter = null;
 
-            datepCsvOutFrom.Text = "2017/6/1";
-            datepCsvOutTo.Text = "2018/5/31";
+            datepCsvOutFrom.Text = "2019/06/01";
+            datepCsvOutTo.Text = "2020/05/31";
+            //datepCsvOutFrom.Text = "2018/07/02";
+            //datepCsvOutTo.Text = "2018/07/02";
         }
 
         private void btnCsvOutExecute_Click(object sender, RoutedEventArgs e)

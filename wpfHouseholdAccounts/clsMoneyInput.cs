@@ -769,6 +769,8 @@ namespace wpfHouseholdAccounts
                                                                 , DateTime myFromDate, DateTime myToDate
                                                                 , bool myFilterSze, bool myFilterApper, bool myFilterCard)
         {
+            //return null;
+
             DbConnection dbcon = new DbConnection();
 
             string SelectCommand = "";
@@ -825,6 +827,7 @@ namespace wpfHouseholdAccounts
             dbcon.openConnection();
 
             SqlCommand cmd = new SqlCommand(SelectCommand, dbcon.getSqlConnection());
+            cmd.CommandTimeout = 120;
 
             //cmd.CommandType = CommandType.StoredProcedure;
 
@@ -864,6 +867,7 @@ namespace wpfHouseholdAccounts
                 data.Remark = DbExportCommon.GetDbString(reader, 9);
 
                 listDetail.Add(data);
+                break;
             }
 
             reader.Close();
@@ -873,6 +877,8 @@ namespace wpfHouseholdAccounts
 
         public static List<MakeupDetailData> GetInputDetailAll(DbConnection myDbCon)
         {
+            //return new List<MakeupDetailData>();
+
             if (myDbCon == null)
                 myDbCon = new DbConnection();
 
@@ -883,10 +889,13 @@ namespace wpfHouseholdAccounts
             SelectCommand = SelectCommand + "        , 貸方, 貸方上位, 貸方名 AS 貸方科目名 \n";
             SelectCommand = SelectCommand + "        , 金額, USED_COMPANY_ARREAR, 摘要, 登録日, COMPANY_ARREARS_DETAIL_ID, DATA_ORDER, BALANCE \n";
             SelectCommand = SelectCommand + "      FROM V_INPUTDETAIL \n";
+            //SelectCommand = SelectCommand + "      WHERE record_num BETWEEN 11 AND 20 \n";
+            //SelectCommand = SelectCommand + "      FROM V_INPUTDETAIL \n";
 
             myDbCon.openConnection();
 
-            SqlCommand cmd = new SqlCommand(SelectCommand, myDbCon.getSqlConnection());
+            //SqlCommand cmd = new SqlCommand(SelectCommand, myDbCon.getSqlConnection());
+            //cmd.CommandTimeout = 120;
 
             myDbCon.SetParameter(null);
 

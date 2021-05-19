@@ -82,6 +82,10 @@ namespace wpfHouseholdAccounts
                 bResult = true;
             else if (CreditCode.Equals("53002"))
                 bResult = true;
+            else if (CreditCode.Equals("22011"))
+                bResult = true;
+            else if (DebitCode.Equals("53001") && CreditCode.Equals("22011"))
+                bResult = true;
             else if (CreditCode.Equals("20801"))
             {
                 if (Kind == 1)

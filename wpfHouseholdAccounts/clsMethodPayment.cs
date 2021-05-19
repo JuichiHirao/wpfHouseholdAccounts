@@ -1526,8 +1526,9 @@ namespace wpfHouseholdAccounts
 				{
 					string ErrMessage = "支払予定時の確定合計額と金銭帳入力の金額が一致していません\n"
 						+ "    確定時金額 = " + myTotalAmount.ToString() + "\n"
-						+ "    金銭帳入力 = " + Detail_Amount.ToString() + "\n";
-					throw new BussinessException( ErrMessage );
+						+ "    金銭帳入力 = " + Detail_Amount.ToString() + "\n"
+                        + "    対象コード = " + Detail_DealingCode + "\n";
+                    throw new BussinessException( ErrMessage );
 				}
 
 				////////////////////////////////////////////////////////
