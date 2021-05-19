@@ -258,6 +258,7 @@ namespace wpfHouseholdAccounts
         {
             SqlDataReader reader;
             SqlCommand dbcmd = dbcon.CreateCommand();
+            dbcmd.CommandTimeout = 120;
 
             dbcmd.CommandText = mySqlCommand;
 

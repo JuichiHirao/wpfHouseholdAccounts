@@ -6,10 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace wpfHouseholdAccounts
+namespace WpfHouseholdAccounts
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// App.xaml の相互作用ロジック
     /// </summary>
     public partial class App : Application
     {

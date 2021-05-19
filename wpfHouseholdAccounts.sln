@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wpfHouseholdAccounts", "wpfHouseholdAccounts\wpfHouseholdAccounts.csproj", "{1ACF160C-94B4-411B-A825-2D2260A19DA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfHouseholdAccounts", "WpfHouseholdAccounts\WpfHouseholdAccounts.csproj", "{03A71978-831E-43CF-8A1B-822FC1907E06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1ACF160C-94B4-411B-A825-2D2260A19DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1ACF160C-94B4-411B-A825-2D2260A19DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1ACF160C-94B4-411B-A825-2D2260A19DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1ACF160C-94B4-411B-A825-2D2260A19DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03A71978-831E-43CF-8A1B-822FC1907E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03A71978-831E-43CF-8A1B-822FC1907E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03A71978-831E-43CF-8A1B-822FC1907E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03A71978-831E-43CF-8A1B-822FC1907E06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {21705891-7132-4B38-B5DE-45C66BB8334E}
 	EndGlobalSection
 EndGlobal

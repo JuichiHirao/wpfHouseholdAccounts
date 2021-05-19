@@ -1,7 +1,7 @@
-﻿<Application x:Class="wpfHouseholdAccounts.App"
+﻿<Application x:Class="WpfHouseholdAccounts.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:wpfHouseholdAccounts"
+             xmlns:local="clr-namespace:WpfHouseholdAccounts"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          
