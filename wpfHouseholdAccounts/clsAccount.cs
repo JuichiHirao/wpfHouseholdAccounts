@@ -26,8 +26,11 @@ namespace wpfHouseholdAccounts
         public const string KIND_PAYMENT_ARREAR = "2210";   // 負債：支払対象の未払
         public const string KIND_NO_PAYMENT_ARRER = "2211"; // 負債：支払対象外の未払
 		public const string	KIND_PROFIT			= "30";		// 収益
+        public const string KIND_COMPANY_CASH = "1010"; // 会社現金
         public const string KIND_COMPANY_EXPENSE        = "31";		// 会社経費：現金
         public const string KIND_COMPANY_EXPENSE_BANK   = "32";		// 会社経費：預金
+        public const string KIND_EXPENSE_GOUDOU        = "34";		// 合同会社経費：現金
+        public const string KIND_EXPENSE_BANK_GOUDOU   = "35";		// 合同会社経費：預金
         public const string KIND_EXPENSE = "40";		// 費用Expense
 		public const string	KIND_EXPENSE_FLOATING	= "40";		// 費用：生活流動
 		public const string	KIND_EXPENSE_FIXED  	= "41";		// 費用：生活固定
@@ -40,9 +43,11 @@ namespace wpfHouseholdAccounts
 
         		// 科目マスタ：各コード
 		public const string	CODE_CASH			= "10100";	// 現金
-        public const string CODE_CASHEXPENSE_COMPANY = "31001";	// 会社経費現金（会社経費支払分）
+        public const string CODE_CASHEXPENSE_KABUSHIKI = "10101";   // 会社経費現金（会社経費支払分）
+        public const string CODE_CASHEXPENSE_GOUDOU = "10102";      // 会社経費現金（会社経費支払分）
         public const string CODE_BANK           = "10200";	// 預金
-		public const string CODE_THETAINC_BANK  = "10209";	// シータ（株）の預金口座
+		public const string CODE_THETAINC_BANK  = "10209";  // シータ（株）の預金口座
+        public const string CODE_THETALCC_BANK  = "10214";	// シータ合同会社の預金口座
         public const string	CODE_ADVANCE		= "10400";	// 立替金（支払確定）
 		public const string	CODE_AFTERWORDS		= "10200";	// 後日支払：銀行口座（支払確定）
 		public const string	CODE_LOAN			= "20000";	// 借入金

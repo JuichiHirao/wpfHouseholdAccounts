@@ -65,7 +65,7 @@ namespace wpfHouseholdAccounts
 
             return;
         }
-        public void Execute(DateTime myRegistDate, MoneyNowData myCashInfo, MoneyNowData myCashExpenseCompanyInfo)
+        public void Execute(DateTime myRegistDate, MoneyNowData myCashInfo, MoneyNowData myCashExpenseKabushikiInfo, MoneyNowData myCashExpenseGoudouInfo)
         {
             // データベース：トランザクションを開始
             dbcon.BeginTransaction("MONEYINPUTBEGIN");
@@ -207,6 +207,18 @@ namespace wpfHouseholdAccounts
                             bankdata.Draw(Account.CODE_THETAINC_BANK, inputdata.Amount);
                     }
 
+                    // 科目種別が「合同用預金の場合」
+                    if (DebitKind == Account.KIND_EXPENSE_BANK_GOUDOU
+                        || CreditKind == Account.KIND_EXPENSE_BANK_GOUDOU)
+                    {
+                        // 借方が預金の場合
+                        if (DebitKind == Account.KIND_EXPENSE_BANK_GOUDOU)
+                            bankdata.Deposit(Account.CODE_THETALCC_BANK, inputdata.Amount);
+                        // 貸方が預金の場合
+                        if (CreditKind == Account.KIND_EXPENSE_BANK_GOUDOU)
+                            bankdata.Draw(Account.CODE_THETALCC_BANK, inputdata.Amount);
+                    }
+
                     // 金銭帳へ登録
                     MoneyInput.InsertDbData(inputdata, dbcon);
                 }
@@ -215,7 +227,8 @@ namespace wpfHouseholdAccounts
                 bankdata.DatabaseRefrect(dbcon);
 
                 cash.RegistDataCheck(myRegistDate, DebitCashTotal, CreditCashTotal);
-                cash.RegistCompanyDataCheck(myRegistDate, myCashExpenseCompanyInfo.DebitAmount, myCashExpenseCompanyInfo.CreditAmount);
+                cash.RegistCompanyDataCheckKabushiki(myRegistDate, myCashExpenseKabushikiInfo.DebitAmount, myCashExpenseKabushikiInfo.CreditAmount);
+                cash.RegistCompanyDataCheckGoudou(myRegistDate, myCashExpenseGoudouInfo.DebitAmount, myCashExpenseGoudouInfo.CreditAmount);
 
                 // OBJ現金のデータベースへの反映（１日分を纏めてＤＢへ反映）
                 cash.DatabaseRefrect(dbcon);
