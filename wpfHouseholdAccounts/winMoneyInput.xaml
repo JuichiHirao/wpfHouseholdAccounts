@@ -61,9 +61,15 @@
                         <TextBox Name="txtCashNow" Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="2" TextChanged="OnTextboxCashBothNow_TextChanged" />
                         <TextBlock Text="差額" Margin="5,-5,5,5" VerticalAlignment="Bottom" Grid.Row="3" />
                         <TextBox Name="txtCashBalance" Margin="6,0,4,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="4" Background="LightGray" IsReadOnly="True" />
+                        <!--
                         <TextBlock Text="会社現在金額" Margin="5,-5,5,5" VerticalAlignment="Bottom" FontSize="18" Grid.Row="5" />
                         <TextBox Name="txtCashCompanyNow" Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="6" TextChanged="OnTextboxCashBothNow_TextChanged" />
                         <TextBlock Text="会社差額" Margin="5,-5,5,5" VerticalAlignment="Bottom" Grid.Row="7" />
+                        <TextBox Name="txtCashCompanyBalance" Margin="6,0,4,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="8" Background="LightGray" IsReadOnly="True" />
+                        -->
+                        <TextBlock Text="合同現在金額" Margin="5,-5,5,5" VerticalAlignment="Bottom" FontSize="18" Grid.Row="5" />
+                        <TextBox Name="txtCashCompanyNow" Margin="5,0,5,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="6" TextChanged="OnTextboxCashBothNow_TextChanged" />
+                        <TextBlock Text="合同差額" Margin="5,-5,5,5" VerticalAlignment="Bottom" Grid.Row="7" />
                         <TextBox Name="txtCashCompanyBalance" Margin="6,0,4,5" HorizontalAlignment="Stretch" TextAlignment="Right" FontSize="24" Grid.Row="8" Background="LightGray" IsReadOnly="True" />
                     </Grid>
                 </Border>

@@ -12,16 +12,20 @@ namespace wpfHouseholdAccounts
 	{
 		private	DateTime	LastRegistDate	= new DateTime();
 		private	long		BalanceAmount	= 0;		// 残高
-        private long        CompanyBalanceAmount = 0;   // 会社残高
+        private long        BalanceAmountKabushiki = 0;   // 株式会社残高
+		private long		BalanceAmountGoudou = 0;   // 合同会社残高
 
-		private	bool		RegistCheck		= false;
+		private bool		RegistCheck		= false;
 		private DateTime	RegistDate		= new DateTime();
 		private long		RegistDebitAmount	= 0;
 		private long		RegistCreditAmount	= 0;
 		private long		RegistBalanceAmount = 0;
-		private long		RegistCompanyDebitAmount	= 0;
-		private long		RegistCompanyCreditAmount	= 0;
-		private long		RegistCompanyBalanceAmount = 0;
+		private long		RegistDebitAmountKabushiki	= 0;
+		private long		RegistCreditAmountKabushiki	= 0;
+		private long		RegistBalanceAmountKabushiki = 0;
+		private long		RegistDebitAmountGoudou = 0;
+		private long		RegistCreditAmountGoudou = 0;
+		private long		RegistBalanceAmountGoudou = 0;
 
 		//////////////////
 		/// 定数：定義  //
@@ -71,7 +75,7 @@ namespace wpfHouseholdAccounts
 			return;
 		}
 
-        public void RegistCompanyDataCheck(DateTime myDate, long myDebitAmt, long myCreditAmt)
+        public void RegistCompanyDataCheckKabushiki(DateTime myDate, long myDebitAmt, long myCreditAmt)
         {
             // 取得した日付、金額の妥当性のチェックを行う
             string ErrMessage = "";
@@ -84,25 +88,60 @@ namespace wpfHouseholdAccounts
                     throw new BussinessException(ErrMessage);
                 }
 
-                if (myDebitAmt + CompanyBalanceAmount < myCreditAmt)
+                if (myDebitAmt + BalanceAmountKabushiki < myCreditAmt)
                 {
                     ErrMessage = "借方と貸方の金額では会社現金がマイナスになります";
                     throw new BussinessException(ErrMessage);
                 }
-            }
-            catch (BussinessException errbsn)
+
+			}
+			catch (BussinessException errbsn)
             {
                 throw errbsn;
             }
 
             RegistDate = myDate;
-            RegistCompanyDebitAmount = myDebitAmt;
-            RegistCompanyCreditAmount = myCreditAmt;
-            RegistCompanyBalanceAmount = CompanyBalanceAmount + RegistCompanyDebitAmount - RegistCompanyCreditAmount;
+            RegistDebitAmountKabushiki = myDebitAmt;
+			RegistCreditAmountKabushiki = myCreditAmt;
+			RegistBalanceAmountKabushiki = BalanceAmountKabushiki + RegistDebitAmountKabushiki - RegistCreditAmountKabushiki;
             RegistCheck = true;
 
             return;
         }
+
+		public void RegistCompanyDataCheckGoudou(DateTime myDate, long myDebitAmt, long myCreditAmt)
+		{
+			// 取得した日付、金額の妥当性のチェックを行う
+			string ErrMessage = "";
+
+			try
+			{
+				if (myDate <= LastRegistDate)
+				{
+					ErrMessage = "指定された日付は既に入力済みです";
+					throw new BussinessException(ErrMessage);
+				}
+
+				if (myDebitAmt + BalanceAmountGoudou < myCreditAmt)
+				{
+					ErrMessage = "借方と貸方の金額では会社現金がマイナスになります";
+					throw new BussinessException(ErrMessage);
+				}
+
+			}
+			catch (BussinessException errbsn)
+			{
+				throw errbsn;
+			}
+
+			RegistDate = myDate;
+			RegistDebitAmountGoudou = myDebitAmt;
+			RegistCreditAmountGoudou = myCreditAmt;
+			RegistBalanceAmountGoudou = BalanceAmountGoudou + RegistDebitAmountGoudou - RegistCreditAmountGoudou;
+			RegistCheck = true;
+
+			return;
+		}
 
 		public MoneyNowData GetNowAssetDept()
 		{
@@ -118,13 +157,25 @@ namespace wpfHouseholdAccounts
         {
             // 
             MoneyNowData nowdata = new MoneyNowData();
-            nowdata.Code = Account.CODE_CASHEXPENSE_COMPANY;
-            nowdata.Name = "会社現金";
-            nowdata.NowAmount = CompanyBalanceAmount;
+            nowdata.Code = Account.CODE_CASHEXPENSE_KABUSHIKI;
+            nowdata.Name = "株式会社現金";
+            nowdata.NowAmount = BalanceAmountKabushiki;
 
             return nowdata;
         }
-        private void DatabaseSetProperty()
+
+		public MoneyNowData GetNowAssetDeptCompanyGoudou()
+		{
+			// 
+			MoneyNowData nowdata = new MoneyNowData();
+			nowdata.Code = Account.CODE_CASHEXPENSE_GOUDOU;
+			nowdata.Name = "合同会社現金";
+			nowdata.NowAmount = BalanceAmountGoudou;
+
+			return nowdata;
+		}
+
+		private void DatabaseSetProperty()
 		{
 			DbConnection myDbCon = new DbConnection();
 			string mySqlCommand = "";
@@ -150,7 +201,7 @@ namespace wpfHouseholdAccounts
 					return;
 				}
 
-				mySqlCommand = "SELECT 年月日, 残高, 会社残高 ";
+				mySqlCommand = "SELECT 年月日, 残高, 会社残高, 合同残高 ";
 				mySqlCommand = mySqlCommand + "    FROM " + Cash.DBTBL_CASH + " ";
 				mySqlCommand = mySqlCommand + "    WHERE 年月日 = ( SELECT MAX(年月日) FROM " + Cash.DBTBL_CASH + " ) ";
 
@@ -162,7 +213,8 @@ namespace wpfHouseholdAccounts
 				// 取得した情報をプロパティへ設定
 				LastRegistDate	= myReader.GetDateTime( 0 );
                 BalanceAmount = DbExportCommon.GetDbMoney(myReader, 1);
-                CompanyBalanceAmount = DbExportCommon.GetDbMoney(myReader, 2);
+                BalanceAmountKabushiki = DbExportCommon.GetDbMoney(myReader, 2);
+				BalanceAmountGoudou = DbExportCommon.GetDbMoney(myReader, 3);
 
 				myReader.Close();
 
@@ -205,10 +257,10 @@ namespace wpfHouseholdAccounts
             myDbCon.SetParameter(null);
 
             mySqlCommand = "INSERT INTO 現金 ";
-            mySqlCommand = mySqlCommand + "( 年月日, 借方金額, 貸方金額, 残高, 会社借方金額, 会社貸方金額, 会社残高 ) ";
-            mySqlCommand = mySqlCommand + "VALUES( @年月日, @借方金額, @貸方金額, @残高, @会社借方金額, @会社貸方金額, @会社残高 ) ";
+            mySqlCommand = mySqlCommand + "( 年月日, 借方金額, 貸方金額, 残高, 会社借方金額, 会社貸方金額, 会社残高, 合同借方金額, 合同貸方金額, 合同残高 ) ";
+            mySqlCommand = mySqlCommand + "VALUES( @年月日, @借方金額, @貸方金額, @残高, @会社借方金額, @会社貸方金額, @会社残高, @合同借方金額, @合同貸方金額, @合同残高 ) ";
 
-            SqlParameter[] sqlparams = new SqlParameter[7];
+            SqlParameter[] sqlparams = new SqlParameter[10];
 
             sqlparams[0] = new SqlParameter("@年月日", SqlDbType.DateTime);
             sqlparams[0].Value = RegistDate.ToShortDateString();
@@ -219,13 +271,19 @@ namespace wpfHouseholdAccounts
             sqlparams[3] = new SqlParameter("@残高", SqlDbType.Int);
             sqlparams[3].Value = RegistBalanceAmount;
             sqlparams[4] = new SqlParameter("@会社借方金額", SqlDbType.Int);
-            sqlparams[4].Value = RegistCompanyDebitAmount;
+            sqlparams[4].Value = RegistDebitAmountKabushiki;
             sqlparams[5] = new SqlParameter("@会社貸方金額", SqlDbType.Int);
-            sqlparams[5].Value = RegistCompanyCreditAmount;
+            sqlparams[5].Value = RegistCreditAmountKabushiki;
             sqlparams[6] = new SqlParameter("@会社残高", SqlDbType.Int);
-            sqlparams[6].Value = RegistCompanyBalanceAmount;
+            sqlparams[6].Value = RegistBalanceAmountKabushiki;
+			sqlparams[7] = new SqlParameter("@合同借方金額", SqlDbType.Int);
+			sqlparams[7].Value = RegistDebitAmountGoudou;
+			sqlparams[8] = new SqlParameter("@合同貸方金額", SqlDbType.Int);
+			sqlparams[8].Value = RegistCreditAmountGoudou;
+			sqlparams[9] = new SqlParameter("@合同残高", SqlDbType.Int);
+			sqlparams[9].Value = RegistBalanceAmountGoudou;
 
-            myDbCon.SetParameter(sqlparams);
+			myDbCon.SetParameter(sqlparams);
 
 			try
 			{

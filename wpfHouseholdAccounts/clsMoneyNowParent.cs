@@ -27,6 +27,8 @@ namespace wpfHouseholdAccounts
             listMoneyNowData.Add(data);
             MoneyNowData dataCompany = nowdataCash.GetNowAssetDeptCompany();
             listMoneyNowData.Add(dataCompany);
+            MoneyNowData dataCompanyGoudou = nowdataCash.GetNowAssetDeptCompanyGoudou();
+            listMoneyNowData.Add(dataCompanyGoudou);
 
             // 予算
             BudgetAccount nowdataBudget = new BudgetAccount();
@@ -61,11 +63,21 @@ namespace wpfHouseholdAccounts
             return null;
         }
 
-        public MoneyNowData GetCashExpenseCampany()
+        public MoneyNowData GetCashExpenseCampanyKabushiki()
         {
             foreach (MoneyNowData data in listMoneyNowData)
             {
-                if (data.Code.Equals(Account.CODE_CASHEXPENSE_COMPANY))
+                if (data.Code.Equals(Account.CODE_CASHEXPENSE_KABUSHIKI))
+                    return data;
+            }
+
+            return null;
+        }
+        public MoneyNowData GetCashExpenseCampanyGoudou()
+        {
+            foreach (MoneyNowData data in listMoneyNowData)
+            {
+                if (data.Code.Equals(Account.CODE_CASHEXPENSE_GOUDOU))
                     return data;
             }
 
@@ -87,6 +99,10 @@ namespace wpfHouseholdAccounts
                     string DebitKind = account.getAccountKind(dataInput.DebitCode);
                     string CreditKind = account.getAccountKind(dataInput.CreditCode);
 
+                    int idx = 1;
+                    if (dataInput.DebitCode == "34801")
+                        idx++;
+
                     // 科目種別が「会社未払」の場合
                     if (DebitKind == Account.KIND_ASSETS_COMPANY_ARREAR)
                     {
@@ -107,9 +123,11 @@ namespace wpfHouseholdAccounts
 
                     if (dataInput.DebitCode.Equals(data.Code))
                         data.DebitAmount += dataInput.Amount;
+
                     if (dataInput.CreditCode != null && dataInput.CreditCode.Equals(data.Code))
                         data.CreditAmount += dataInput.Amount;
-                    if (data.Code.Equals(Account.CODE_CASHEXPENSE_COMPANY))
+
+                    if (data.Code.Equals(Account.CODE_CASHEXPENSE_KABUSHIKI))
                     {
                         if (dataInput.DebitCode.Equals("21002"))
                             data.DebitAmount += dataInput.Amount;
@@ -117,21 +135,36 @@ namespace wpfHouseholdAccounts
                             data.CreditAmount += dataInput.Amount;
                     }
 
+                    if (data.Code.Equals(Account.CODE_CASHEXPENSE_GOUDOU))
+                    {
+                        if (dataInput.DebitCode.Equals("21006"))
+                            data.DebitAmount += dataInput.Amount;
+                        if (dataInput.CreditCode.Equals("21006"))
+                            data.CreditAmount += dataInput.Amount;
+                    }
+
                     if (kindNow.Equals(Account.KIND_COMPANY_EXPENSE))
                     {
                         string kind = myAccount.getAccountKind(dataInput.DebitCode);
-                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE))
+                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE)
+                            && dataInput.DebitCode.Equals(data.Code))
                             data.DebitAmount += dataInput.Amount;
 
-                        //if (dataInput.DebitCode.Equals(Account.CODE_LOAN_THETAINC))
-                        //    data.DebitAmount += dataInput.Amount;
+                        kind = myAccount.getAccountKind(dataInput.CreditCode);
+                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE)
+                            && dataInput.CreditCode.Equals(data.Code))
+                            data.CreditAmount += dataInput.Amount;
+                    }
+
+                    if (data.Code.Equals(Account.CODE_CASHEXPENSE_GOUDOU))
+                    {
+                        string kind = myAccount.getAccountKind(dataInput.DebitCode);
+                        if (kind.Equals(Account.KIND_EXPENSE_GOUDOU))
+                            data.DebitAmount += dataInput.Amount;
 
                         kind = myAccount.getAccountKind(dataInput.CreditCode);
-                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE))
+                        if (kind.Equals(Account.KIND_EXPENSE_GOUDOU))
                             data.CreditAmount += dataInput.Amount;
-
-                        //if (dataInput.CreditCode.Equals(Account.CODE_LOAN_THETAINC))
-                        //    data.DebitAmount += dataInput.Amount;
                     }
 
                     if (data.Code.Equals(Account.CODE_THETAINC_BANK))
@@ -143,9 +176,16 @@ namespace wpfHouseholdAccounts
                         kind = myAccount.getAccountKind(dataInput.CreditCode);
                         if (kind.Equals(Account.KIND_COMPANY_EXPENSE_BANK))
                             data.CreditAmount += dataInput.Amount;
+                    }
+                    if (data.Code.Equals(Account.CODE_THETALCC_BANK))
+                    {
+                        string kind = myAccount.getAccountKind(dataInput.DebitCode);
+                        if (kind.Equals(Account.KIND_EXPENSE_BANK_GOUDOU))
+                            data.DebitAmount += dataInput.Amount;
 
-                        //if (dataInput.CreditCode.Equals(Account.CODE_LOAN_THETAINC))
-                        //    data.CreditAmount += dataInput.Amount;
+                        kind = myAccount.getAccountKind(dataInput.CreditCode);
+                        if (kind.Equals(Account.KIND_EXPENSE_BANK_GOUDOU))
+                            data.CreditAmount += dataInput.Amount;
                     }
                 }
             }
