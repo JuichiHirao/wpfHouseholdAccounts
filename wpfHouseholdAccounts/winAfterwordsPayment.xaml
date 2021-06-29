@@ -71,12 +71,13 @@
                 <ToggleButton Content="法人JCB" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
                 <ToggleButton Content="口座" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
                 <ToggleButton Content="京王" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
-                <ToggleButton Content="ヤフー" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
+                <!--<ToggleButton Content="ヤフー" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />-->
                 <ToggleButton Content="Pal" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
                 <!--<ToggleButton Content="大地" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />-->
                 <ToggleButton Content="ヨドバシ" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
                 <ToggleButton Content="アトレ" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
                 <ToggleButton Content="ビュー" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
+                <ToggleButton Content="東急" Width="80" Margin="10,2,5,2" Click="OnFilterToggleButtonClick" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2">
