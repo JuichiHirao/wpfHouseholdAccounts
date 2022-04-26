@@ -156,6 +156,17 @@ namespace wpfHouseholdAccounts
 
             dgridMakeupNowInfo.ItemsSource = parent.listMoneyNowData;
 
+            long totalMinusAmount = 0;
+            foreach (MoneyNowData data in parent.listMoneyNowData)
+            {
+                if (data.BaseDateBalanceAmount < 0)
+                {
+                    totalMinusAmount = totalMinusAmount + (data.BaseDateBalanceAmount * -1);
+                }
+            }
+
+            TxtbBalanceMinus.Text = String.Format("-{0:###,###,##0}", totalMinusAmount);
+
             // SQLServerの日付を取得して、サーバー側の日付がずれていたら背景を赤にする
             DateTime dtDbNow = dbcon.getDateStringSql("SELECT GETDATE()");
             TimeSpan span = dtDbNow - DateTime.Now;
@@ -534,6 +545,7 @@ namespace wpfHouseholdAccounts
                     }
                 }
 
+                // Debug.Print("dispinfoMakeupDetailFilterButton " + dispinfoMakeupDetailFilterButton.ToString());
                 ColViewListInputDataDetail.Filter = delegate(object o)
                 {
                     MakeupDetailData data = o as MakeupDetailData;
@@ -579,10 +591,17 @@ namespace wpfHouseholdAccounts
                     {
                         if (dispinfoMakeupDetailFilterButton[0] && data.Kind == 1)
                         {
+                            if (data.CreditCode.IndexOf("31") == 0 || data.CreditCode.Equals("20801")
+                            || data.UsedCompanyArrear == 1)
+                                IsMatch = false;
+                            else
+                                IsMatch = true;
+                            /*
                             if (!data.IsCompany())
                                 IsMatch = true;
                             else
                                 IsMatch = false;
+                             */
                             //Debug.Print("Match!! IsMatch [" + IsMatch + "]  dispinfoMakeupDetailFilterButton[0] [" + dispinfoMakeupDetailFilterButton[0] + "]  data.Kind [" + data.Kind + "]");
                         }
                         else if (data.Kind == 1)
@@ -592,11 +611,13 @@ namespace wpfHouseholdAccounts
                             IsMatch = true;
                         else if (data.Kind == 2)
                             IsMatch = false;
+                        // Debug.Print("Match!! 2 IsMatch [" + IsMatch + "]");
 
                         if (dispinfoMakeupDetailFilterButton[2] && data.Kind == 3)
                             IsMatch = true;
                         else if (data.Kind == 3)
                             IsMatch = false;
+                        // Debug.Print("Match!! 3 IsMatch [" + IsMatch + "]");
 
                         if (dispinfoMakeupDetailFilterButton[3])
                         {
@@ -605,7 +626,9 @@ namespace wpfHouseholdAccounts
                             else
                                 IsMatch = false;
                         }
+                        // Debug.Print("Match!! 4 IsMatch [" + IsMatch + "]");
 
+                        /*
                         if (isWithCompanyCard)
                         {
                             if (dispinfoMakeupDetailFilterButton[4] && data.Kind == 4)
@@ -631,11 +654,20 @@ namespace wpfHouseholdAccounts
                             else
                                 IsMatch = false;
                         }
+                         */
+
+                        //Debug.Print("Match!! 5 IsMatch [" + IsMatch + "]");
 
                         if (dispinfoMakeupDetailFilterButton[5] && data.Kind == 5)
                             IsMatch = true;
                         else if (data.Kind == 5)
                             IsMatch = false;
+                        // Debug.Print("Match!! 6 IsMatch [" + IsMatch + "]");
+
+                        if (data.Kind == 4 || data.Kind == 6)
+                            IsMatch = false;
+
+
                     }
                     //Debug.Print("IsMatch [" + IsMatch + "]  dispinfoMakeupDetailFilterButton[0] [" + dispinfoMakeupDetailFilterButton[0] + "]  data.Kind [" + data.Kind + "]");
 
@@ -2370,8 +2402,8 @@ namespace wpfHouseholdAccounts
             lborderCsvOut.Visibility = System.Windows.Visibility.Visible;
             ColViewListInputDataDetail.Filter = null;
 
-            datepCsvOutFrom.Text = "2019/06/01";
-            datepCsvOutTo.Text = "2020/05/31";
+            datepCsvOutFrom.Text = "2020/06/01";
+            datepCsvOutTo.Text = "2021/05/31";
             //datepCsvOutFrom.Text = "2018/07/02";
             //datepCsvOutTo.Text = "2018/07/02";
         }

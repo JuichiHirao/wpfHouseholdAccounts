@@ -101,7 +101,7 @@ namespace wpfHouseholdAccounts
             }
  */
             //settings = "Data Source=tcp:192.168.11.199;Initial Catalog=家計簿;Persist Security Info=True;User ID=sa;Password=11Jhirao";
-            settings = "Data Source=tcp:WinServer2016DB;Initial Catalog=家計簿;Persist Security Info=True;User ID=sa;Password=11Jhirao";
+            settings = "Data Source=tcp:WinServer2016DB;Initial Catalog=householdaccount;Persist Security Info=True;User ID=sa;Password=11Jhirao";
             try
             {
                 dbcon = new SqlConnection(settings);

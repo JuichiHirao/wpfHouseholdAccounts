@@ -643,7 +643,8 @@ namespace wpfHouseholdAccounts
 
                         indata.Date = myPaymentDate;
                         indata.DebitCode = adjustmentData.Code;
-                        indata.CreditCode = Account.CODE_CASH;    // 現金
+                        // indata.CreditCode = Account.CODE_CASH;    // 現金
+                        indata.CreditCode = "10215";    // SBI銀行
                         indata.Amount = adjustmentData.Amount;
 
                         payment.DatabaseDecisionInsert(adjustmentData.Code, indata, myDbcon);

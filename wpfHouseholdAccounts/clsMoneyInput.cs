@@ -889,6 +889,7 @@ namespace wpfHouseholdAccounts
             SelectCommand = SelectCommand + "        , 貸方, 貸方上位, 貸方名 AS 貸方科目名 \n";
             SelectCommand = SelectCommand + "        , 金額, USED_COMPANY_ARREAR, 摘要, 登録日, COMPANY_ARREARS_DETAIL_ID, DATA_ORDER, BALANCE \n";
             SelectCommand = SelectCommand + "      FROM V_INPUTDETAIL \n";
+            SelectCommand = SelectCommand + "      WHERE 年月日 >= '2020-01-01' \n";
             //SelectCommand = SelectCommand + "      WHERE record_num BETWEEN 11 AND 20 \n";
             //SelectCommand = SelectCommand + "      FROM V_INPUTDETAIL \n";
 

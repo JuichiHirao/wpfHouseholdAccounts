@@ -311,7 +311,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="順" Binding="{Binding DataOrder}" Width="40" IsReadOnly="True">
+                        <DataGridTextColumn Header="順" Binding="{Binding UsedCompanyArrear}" Width="40" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Margin" Value="3,3,3,3" />
@@ -335,48 +335,55 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <DataGrid AutoGenerateColumns="False" HorizontalAlignment="Left" Margin="10,40,5,5" Name="dgridMakeupNowInfo" VerticalAlignment="Top"
-                    SelectionMode="Single" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="CD" Binding="{Binding Code}" Width="60" />
-                        <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="200" />
-                        <DataGridTextColumn Header="家計簿金額" Binding="{Binding NowAmount, StringFormat='###,###,##0'}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="予算" Binding="{Binding Budget, StringFormat='###,###,##0'}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="実金額" Binding="{Binding RealAmount, StringFormat='###,###,##0'}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="支払金額" Binding="{Binding ScheduleAmount, StringFormat='###,###,##0'}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="基準日残高" Binding="{Binding BaseDateBalanceAmount, StringFormat='###,###,##0'}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Right" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Name="TxtbBalanceMinus" VerticalAlignment="Bottom" Margin="10,0,5,5" FontSize="18" />
+                    <DataGrid AutoGenerateColumns="False" HorizontalAlignment="Left" Margin="10,0,5,5" Name="dgridMakeupNowInfo" VerticalAlignment="Top"
+                    SelectionMode="Single" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" Grid.Row="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="CD" Binding="{Binding Code}" Width="60" />
+                            <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="200" />
+                            <DataGridTextColumn Header="家計簿金額" Binding="{Binding NowAmount, StringFormat='###,###,##0'}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="予算" Binding="{Binding Budget, StringFormat='###,###,##0'}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="実金額" Binding="{Binding RealAmount, StringFormat='###,###,##0'}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="支払金額" Binding="{Binding ScheduleAmount, StringFormat='###,###,##0'}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="基準日残高" Binding="{Binding BaseDateBalanceAmount, StringFormat='###,###,##0'}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
                 <Grid Name="lgridPaymentSchedule"  Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
