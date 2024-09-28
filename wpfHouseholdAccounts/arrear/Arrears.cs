@@ -68,7 +68,7 @@ namespace wpfHouseholdAccounts
             return listData;
         }
 
-        public void Regist(List<MakeupDetailData> myListData, DbConnection dbcon)
+        public void Regist(List<MakeupDetailData> myListData, int myTargetCompany, DbConnection dbcon)
         {
             // データベース：トランザクションを開始
             dbcon.BeginTransaction("ARREAR_REGIST");
@@ -105,7 +105,7 @@ namespace wpfHouseholdAccounts
                             throw new Exception("未払明細履歴に一致する金銭帳のデータが存在しません");
 
                         // 未払明細を更新
-                        Arrear.UpdateDbUsedCompanyHistoryArrear(findData.Id, 1, dbcon);
+                        Arrear.UpdateDbUsedCompanyHistoryArrear(findData.Id, myTargetCompany, dbcon);
                     }
                     else if (data.Kind == 6)
                     {
@@ -119,7 +119,7 @@ namespace wpfHouseholdAccounts
                             throw new Exception("未払明細に一致する金銭帳のデータが存在しません");
 
                         // 未払明細を更新
-                        Arrear.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
+                        Arrear.UpdateDbUsedCompanyArrear(findData.Id, myTargetCompany, dbcon);
                     }
                     else
                     {
@@ -133,7 +133,7 @@ namespace wpfHouseholdAccounts
                             throw new Exception("カード明細に一致する金銭帳のデータが存在しません");
 
                         // 金銭帳を更新
-                        MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, 1, dbcon);
+                        MoneyInput.UpdateDbUsedCompanyArrear(findData.Id, myTargetCompany, dbcon);
                     }
 
                     // COMPANY_ARREARS_DETAILへ登録

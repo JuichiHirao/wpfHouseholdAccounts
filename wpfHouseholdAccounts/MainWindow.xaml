@@ -224,7 +224,8 @@
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Name="menuitemAddNextMonth" Header="翌月へ追加" Click="menuitemAddNextMonth_Click" />
-                            <MenuItem Name="menuitemAddCompanyArrear" Header="会社未払へ算入" Click="menuitemAddCompanyArrear_Click" />
+                            <!--<MenuItem Name="menuitemAddCompanyArrear" Header="会社未払へ算入" Click="menuitemAddCompanyArrear_Click" />-->
+                            <MenuItem Name="menuitemAddCompanyArrear" Header="合同未払へ算入" Click="menuitemAddCompanyGoudouArrear_Click" />
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.ItemContainerStyle>

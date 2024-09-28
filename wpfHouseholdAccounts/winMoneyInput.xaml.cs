@@ -622,16 +622,16 @@ namespace wpfHouseholdAccounts
             parentNowInfo.SummaryDebitCredit(listInputdata, account);
 
             MoneyNowData dataCash = parentNowInfo.GetCash();
-            //MoneyNowData dataCashCompany = parentNowInfo.GetCashExpenseCampanyKabushiki();
-            MoneyNowData dataCashGoudou = parentNowInfo.GetCashExpenseCampanyGoudou();
+            MoneyNowData dataCashCompany = parentNowInfo.GetCashExpenseCampanyKabushiki();
+            //MoneyNowData dataCashGoudou = parentNowInfo.GetCashExpenseCampanyGoudou();
 
             long haveCash = 0;
             long haveCashCompany = 0;
             try
             {
                 haveCash = Convert.ToInt64(txtCashNow.Text);
-                //haveCashCompany = Convert.ToInt64(txtCashCompanyNow.Text);
                 haveCashCompany = Convert.ToInt64(txtCashCompanyNow.Text);
+                //haveCashCompany = Convert.ToInt64(txtCashCompanyNow.Text);
             }
             catch (Exception)
             {
@@ -639,8 +639,8 @@ namespace wpfHouseholdAccounts
             }
 
             txtCashBalance.Text = Convert.ToString(dataCash.HaveCashAmount - haveCash);
-            //txtCashCompanyBalance.Text = Convert.ToString(dataCashCompany.HaveCashAmount - haveCashCompany);
-            txtCashCompanyBalance.Text = Convert.ToString(dataCashGoudou.HaveCashAmount - haveCashCompany);
+            txtCashCompanyBalance.Text = Convert.ToString(dataCashCompany.HaveCashAmount - haveCashCompany);
+            //txtCashCompanyBalance.Text = Convert.ToString(dataCashGoudou.HaveCashAmount - haveCashCompany);
         }
 
         private void dtpickRegistDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)

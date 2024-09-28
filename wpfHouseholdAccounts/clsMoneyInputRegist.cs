@@ -201,10 +201,10 @@ namespace wpfHouseholdAccounts
                     {
                         // 借方が預金の場合
                         if (DebitKind == Account.KIND_COMPANY_EXPENSE_BANK)
-                            bankdata.Deposit(Account.CODE_THETAINC_BANK, inputdata.Amount);
+                            bankdata.Deposit(Account.CODE_THETAINC_DEBIT_BANK, inputdata.Amount);
                         // 貸方が預金の場合
                         if (CreditKind == Account.KIND_COMPANY_EXPENSE_BANK)
-                            bankdata.Draw(Account.CODE_THETAINC_BANK, inputdata.Amount);
+                            bankdata.Draw(Account.CODE_THETAINC_DEBIT_BANK, inputdata.Amount);
                     }
 
                     // 科目種別が「合同用預金の場合」

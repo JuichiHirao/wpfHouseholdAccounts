@@ -2445,7 +2445,7 @@ namespace wpfHouseholdAccounts
             lborderCsvOut.Visibility = System.Windows.Visibility.Collapsed;
         }
 
-        private void menuitemAddCompanyArrear_Click(object sender, RoutedEventArgs e)
+        private void menuitemAddCompanyGoudouArrear_Click(object sender, RoutedEventArgs e)
         {
             dbcon.openConnection();
 
@@ -2453,7 +2453,7 @@ namespace wpfHouseholdAccounts
 
             Arrears arrears = new Arrears();
 
-            arrears.Regist(listDetail, dbcon);
+            arrears.Regist(listDetail, 2, dbcon);
 
             // 正常にキャンセル処理が終了した場合はDataGrid上のデータを更新する
             UpdateDataGridCompanyArrear(1);
@@ -2592,7 +2592,7 @@ namespace wpfHouseholdAccounts
                     MenuItem menuitem = new MenuItem();
                     menuitem.Header = menuName;
                     if (idx == 0)
-                        menuitem.Click += menuitemAddCompanyArrear_Click;
+                        menuitem.Click += menuitemAddCompanyGoudouArrear_Click;
                     else if (idx == 1)
                         menuitem.Click += menuitemAddCompanyArrearCancel_Click;
 

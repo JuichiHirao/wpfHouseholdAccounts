@@ -47,6 +47,7 @@ namespace wpfHouseholdAccounts
         public const string CODE_CASHEXPENSE_GOUDOU = "10102";      // 会社経費現金（会社経費支払分）
         public const string CODE_BANK           = "10200";	// 預金
 		public const string CODE_THETAINC_BANK  = "10209";  // シータ（株）の預金口座
+        public const string CODE_THETAINC_DEBIT_BANK = "10216";  // シータ（株）のデビット預金口座
         public const string CODE_THETALCC_BANK  = "10214";	// シータ合同会社の預金口座
         public const string	CODE_ADVANCE		= "10400";	// 立替金（支払確定）
 		public const string	CODE_AFTERWORDS		= "10200";	// 後日支払：銀行口座（支払確定）

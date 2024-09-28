@@ -100,7 +100,7 @@ namespace wpfHouseholdAccounts
                     string CreditKind = account.getAccountKind(dataInput.CreditCode);
 
                     int idx = 1;
-                    if (dataInput.DebitCode == "34801")
+                    if (data.Code == "10102")
                         idx++;
 
                     // 科目種別が「会社未払」の場合
@@ -143,16 +143,14 @@ namespace wpfHouseholdAccounts
                             data.CreditAmount += dataInput.Amount;
                     }
 
-                    if (kindNow.Equals(Account.KIND_COMPANY_EXPENSE))
+                    if (data.Code.Equals(Account.CODE_CASHEXPENSE_KABUSHIKI))
                     {
                         string kind = myAccount.getAccountKind(dataInput.DebitCode);
-                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE)
-                            && dataInput.DebitCode.Equals(data.Code))
+                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE))
                             data.DebitAmount += dataInput.Amount;
 
                         kind = myAccount.getAccountKind(dataInput.CreditCode);
-                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE)
-                            && dataInput.CreditCode.Equals(data.Code))
+                        if (kind.Equals(Account.KIND_COMPANY_EXPENSE))
                             data.CreditAmount += dataInput.Amount;
                     }
 
@@ -167,7 +165,7 @@ namespace wpfHouseholdAccounts
                             data.CreditAmount += dataInput.Amount;
                     }
 
-                    if (data.Code.Equals(Account.CODE_THETAINC_BANK))
+                    if (data.Code.Equals(Account.CODE_THETAINC_DEBIT_BANK))
                     {
                         string kind = myAccount.getAccountKind(dataInput.DebitCode);
                         if (kind.Equals(Account.KIND_COMPANY_EXPENSE_BANK))
